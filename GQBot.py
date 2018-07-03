@@ -40,5 +40,10 @@ async def aquaesulis():
 async def tiffinbbc():
     await client.say("http://tiffinBBC.gq")
     await client.say("WARNING! Formatting might look relly weird on big screens!")
+    
+@client.command()
+async def gqempire():
+    await cleint.say("http://GQEmpire.gq")
+    await client.say("This is your main site! Feel free to make it your homepage :)")
 
 client.run("NDYyMzUwNjcyMzM2MTI1OTU4.Dhl1WQ.FFyRBQUoF_Jzp0Or7qP9GkRlFi4")
