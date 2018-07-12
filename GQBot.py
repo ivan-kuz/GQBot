@@ -49,7 +49,7 @@ async def github():
 @client.command()
 async def wiki():
     await client.say("https://github.com/ivan-kuz/GQBot/wiki")
-    await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!"0
+    await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!")
 
 @client.command()
 async def gqempire():
