@@ -42,6 +42,16 @@ async def tiffinbbc():
     await client.say("WARNING! Formatting might look relly weird on big screens!")
     
 @client.command()
+async def github():
+    await client.say("https://github.com/ivan-kuz/GQBot/")
+    awiat client.say("This is the github repo for the GQBot. If you're an avid coder, feel free to contribute to this wonderful bot!")
+    
+@client.command()
+async def wiki():
+    await client.say("https://github.com/ivan-kuz/GQBot/wiki")
+    await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!"0
+
+@client.command()
 async def gqempire():
     await cleint.say("http://GQEmpire.gq")
     await client.say("This is your main site! Feel free to make it your homepage :)")
