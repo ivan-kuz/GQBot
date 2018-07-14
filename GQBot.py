@@ -44,7 +44,7 @@ async def tiffinbbc():
 @client.command()
 async def github():
     await client.say("https://github.com/ivan-kuz/GQBot/")
-    awiat client.say("This is the github repo for the GQBot. If you're an avid coder, feel free to contribute to this wonderful bot!")
+    await client.say("This is the github repo for the GQBot. If you're an avid coder, feel free to contribute to this wonderful bot!")
     
 @client.command()
 async def wiki():
