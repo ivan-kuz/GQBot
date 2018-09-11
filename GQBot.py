@@ -51,6 +51,13 @@ async def wiki():
     await client.say("https://github.com/ivan-kuz/GQBot/wiki")
     await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!")
 
+@client.event()
+async def on_message(message):
+    if message.content == "calm":
+        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!!!")
+    elif message.content == "Calm":
+        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!!!")
+    
 @client.command()
 async def gqempire():
     await cleint.say("http://GQEmpire.gq")
