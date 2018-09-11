@@ -63,4 +63,4 @@ async def gqempire():
     await cleint.say("http://GQEmpire.gq")
     await client.say("This is your main site! Feel free to make it your homepage :)")
 
-client.run("NDYyMzUwNjcyMzM2MTI1OTU4.Dhl1WQ.FFyRBQUoF_Jzp0Or7qP9GkRlFi4")
+client.run("insert token here")
