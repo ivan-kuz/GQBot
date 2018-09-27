@@ -51,6 +51,11 @@ async def wiki():
     await client.say("https://github.com/ivan-kuz/GQBot/wiki")
     await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!")
 
+@client.command()
+async def quests():
+    await client.say("Press 'Run' to play your first quest!")
+    await client.say("http://gq-quests.atwebpages.com")
+
 @client.event()
 async def on_message(message):
     if message.content == "calm":
