@@ -11,6 +11,7 @@ client = commands.Bot(command_prefix = "$")
 
 @client.event 
 async def on_ready():
+    await client.change_presence(game=discord.Game(name="$commands"))
     print("GQBot is online! Hail the Fathers!")
     
 @client.command()
@@ -44,9 +45,9 @@ async def github():
     await client.say("This is the github repo for the GQBot. If you're an avid coder, feel free to contribute to this wonderful bot!")
     
 @client.command()
-async def wiki():
+async def commands():
     await client.say("https://github.com/ivan-kuz/GQBot/wiki")
-    await client.say("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!")
+    await client.say("This is the list of all of the commands of the GQBot. We hope it's up to date: if not, just let us know!")
 
 @client.command()
 async def quests():
