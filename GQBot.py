@@ -17,15 +17,12 @@ async def on_ready():
 async def ping():
     await client.say("Pong!")
 
-@client.event
-async def on_message(message):
-    if message.content == "Greetings, GQBot!":
-        await client.send_message(message.channel, "Hail the Fathers!")
-    elif message.content == "greetings, GQBot!":
-        await client.send_message(message.channel, "Hail the Fathers!")
-    elif message.content == "greetings GQBot!":
-        await client.send_message(message.channel, "Hail the Fathers!")
-    await client.process_commands(message)
+@client.command()
+async def spam100():
+    n = 1
+    while 1 < 101:
+        await client.say("@everyone bow down to the GQEmpire")
+        n += 1
 
 @client.command()
 async def romatime():
@@ -56,16 +53,17 @@ async def quests():
     await client.say("Press 'Run' to play your first quest!")
     await client.say("http://gq-quests.atwebpages.com")
 
-@client.event()
+@client.event
 async def on_message(message):
     if message.content == "calm":
-        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!!!")
-    elif message.content == "Calm":
-        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!!!")
-    
+        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!")
+    elif message.content == "calm.":
+        await client.send_message(message.channel, "Do you know what else is calm?! The GQBot!")
+    await client.process_commands(message)
+        
 @client.command()
 async def gqempire():
     await cleint.say("http://GQEmpire.gq")
     await client.say("This is your main site! Feel free to make it your homepage :)")
 
-client.run("insert token here")
+client.run("token")
