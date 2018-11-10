@@ -25,4 +25,4 @@ async def echo(*args):
         output += " "
     await client.say(output)
 
-client.run("NDYyMzIxNTQ4OTU1NDg0MTYw.DhgZCA.CHBQy6CYpzTJ2HSdoc9NOio-We8")
+client.run("token")
