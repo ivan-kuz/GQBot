@@ -16,7 +16,7 @@ async def ping(ctx):
 
 @client.command()
 async def spam100(ctx):
-    for i in range(100)
+    for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
 
 """
