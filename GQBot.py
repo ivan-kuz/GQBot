@@ -21,8 +21,8 @@ async def spam100(ctx):
 
 @client.event
 async def on_message(message):
-    message.content.lower()
-    if message.content == "greetings, gqbot!" or "greetings gqbot!":
+    messageContent = message.content.lower()
+    if messageContent == "greetings, gqbot!" or messageContent == "greetings gqbot!":
         await message.channel.send("Hail the Fathers!")
     await client.process_commands(message)
     
@@ -61,7 +61,7 @@ async def toss(ctx):
 
 @client.event
 async def on_message(message):
-    if message.content == "calm":
+    if message.content.lower() == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
     await client.process_commands(message)
 
