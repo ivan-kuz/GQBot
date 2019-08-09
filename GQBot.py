@@ -19,19 +19,13 @@ async def spam100(ctx):
     for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
 
-"""
-Still needs to be migrated
-@commands.Cog.listener()
-async def on_message(ctx, message):
-    if message.content == "Greetings, GQBot!":
-        await ctx.send_message(message.channel, "Hail the Fathers!")
-    elif message.content == "greetings, GQBot!":
-        await ctx.send_message(message.channel, "Hail the Fathers!")
-    elif message.content == "greetings GQBot!":
-        await ctx.send_message(message.channel, "Hail the Fathers!")
-    await ctx.process_commands(message)
-"""
-
+@client.event
+async def on_message(message):
+    message.content.lower()
+    if message.content == "greetings, gqbot!" or "greetings gqbot!":
+        await message.channel.send("Hail the Fathers!")
+    await client.process_commands(message)
+    
 @client.command()
 async def romatime(ctx):
     await ctx.send("http://romatime.gq")
@@ -59,25 +53,21 @@ async def wiki(ctx):
 @client.command()
 async def quests(ctx):
     await ctx.send("Press 'Run' to play your first quest!")
-    await ctx.send("http://gq-quests.atwebpages.com")
+    await ctx.send("http://quests.aquaesulis.gq")
 
 @client.command()
 async def toss(ctx):
     await ctx.send("Tossing coin... It landed " + random.choice(("heads","tails"))+"!")
 
-"""
-Still needs to be migrated
 @client.event
-async def on_message(ctx, message):
+async def on_message(message):
     if message.content == "calm":
-        await ctx.send_message(message.channel, "Do you know what else is calm?! The GQBot!")
-    elif message.content == "calm.":
-        await ctx.send_message(message.channel, "Do you know what else is calm?! The GQBot!")
+        await message.channel.send("Do you know what else is calm?! The GQBot!")
     await client.process_commands(message)
-"""
+
 @client.command()
 async def gqempire(ctx):
     await ctx.send("http://GQEmpire.gq")
     await ctx.send("This is your main site! Feel free to make it your homepage :)")
 
-client.run("im-not-telling-you-the-token")
+client.run("not_telling_you_the_token")
