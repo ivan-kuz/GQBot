@@ -2,7 +2,7 @@ import discord
 from discord.ext.commands import Bot
 from discord.ext import commands
 import asyncio
-import time
+import time, random
 
 client = commands.Bot(command_prefix = "$")
 
@@ -16,10 +16,8 @@ async def ping(ctx):
 
 @client.command()
 async def spam100(ctx):
-    n = 1
-    while 1 < 101:
+    for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
-        n += 1
 
 """
 Still needs to be migrated
@@ -62,6 +60,10 @@ async def wiki(ctx):
 async def quests(ctx):
     await ctx.send("Press 'Run' to play your first quest!")
     await ctx.send("http://gq-quests.atwebpages.com")
+
+@client.command()
+async def toss(ctx):
+    await ctx.send("Tossing coin... It landed " + random.choice(("heads","tails"))+"!")
 
 """
 Still needs to be migrated
