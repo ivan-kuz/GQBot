@@ -15,6 +15,10 @@ async def ping(ctx):
     await ctx.send("Pong!")
 
 @client.command()
+async def hello_world(ctx):
+    await ctx.send("Hello, "+ctx.author.name+"!")
+
+@client.command()
 async def spam100(ctx):
     for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
@@ -59,6 +63,47 @@ async def quests(ctx):
 async def toss(ctx):
     await ctx.send("Tossing coin... It landed " + random.choice(("heads","tails"))+"!")
 
+@client.command()
+async def roll(ctx, *args):
+    dice = 1
+    sides = None
+    if len(args) == 0:
+        sides = 6
+    elif len(args) == 1:
+        try:
+            sides = int(args[0])
+            if sides < 1:
+                sides = 6
+        except ValueError:
+            sides = 6
+    elif len(args) == 2:
+        try:
+            sides = int(args[0])
+            dice = int(args[1])
+            if sides < 1:
+                sides = 6
+            if dice < 1:
+                dice = 1
+        except ValueError:
+            sides = None
+            choices = args
+    else:
+        choices = args
+    if sides == None:
+        roll = '"'+random.choice(choices)+'"'
+        flavour = "between "+len(choices)+" choices. "
+    else:
+        roll = 0
+        for i in range(dice):
+            roll += random.randint(1, sides)
+        roll = str(roll)
+        flavour = str(sides) + " sided di"
+        if dice == 1:
+            flavour += "e. "
+        else:
+            flavour += "ce, "+str(dice)+" of them. "
+     await ctx.send("Rolling " + flavour + "Landed: " + roll)
+    
 @client.event
 async def on_message(message):
     if message.content.lower() == "calm":
