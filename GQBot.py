@@ -22,13 +22,6 @@ async def hello_world(ctx):
 async def spam100(ctx):
     for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
-
-@client.event
-async def on_message(message):
-    messageContent = message.content.lower()
-    if messageContent == "greetings, gqbot!" or messageContent == "greetings gqbot!":
-        await message.channel.send("Hail the Fathers!")
-    await client.process_commands(message)
     
 @client.command()
 async def romatime(ctx):
@@ -106,8 +99,11 @@ async def roll(ctx, *args):
     
 @client.event
 async def on_message(message):
-    if message.content.lower() == "calm":
+    messageContent = message.content.lower()
+    if messageContent == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
+    if messageContent == "greetings, gqbot!" or messageContent == "greetings gqbot!":
+        await message.channel.send("Hail the Fathers!")
     await client.process_commands(message)
 
 @client.command()
