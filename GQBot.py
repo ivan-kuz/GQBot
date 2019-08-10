@@ -91,7 +91,7 @@ async def roll(ctx, *args):
         choices = args
     if sides == None:
         roll = '"'+random.choice(choices)+'"'
-        flavour = "between "+len(choices)+" choices. "
+        flavour = "between "+str(len(choices))+" choices. "
     else:
         roll = 0
         for i in range(dice):
