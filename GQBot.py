@@ -2,7 +2,7 @@ import discord
 from discord.ext.commands import Bot
 from discord.ext import commands
 import asyncio
-import time, random
+import time, random, re
 
 client = commands.Bot(command_prefix = "$")
 
@@ -15,8 +15,8 @@ async def ping(ctx):
     await ctx.send("Pong!")
 
 @client.command()
-async def hello_world(ctx):
-    await ctx.send("Hello, "+ctx.author.name+"!")
+async def hail(ctx):
+    await ctx.send("Hail the fathers!")
 
 @client.command()
 async def spam100(ctx):
@@ -102,8 +102,8 @@ async def on_message(message):
     messageContent = message.content.lower()
     if messageContent == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
-    if messageContent == "greetings, gqbot!" or messageContent == "greetings gqbot!":
-        await message.channel.send("Hail the Fathers!")
+    if re.search("^((hello)|(greetings)|(hi))", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
+        await message.channel.send("Hello, "+message.author.display_name+"!")
     await client.process_commands(message)
 
 @client.command()
