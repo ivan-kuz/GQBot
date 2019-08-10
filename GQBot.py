@@ -108,6 +108,9 @@ async def on_message(message):
     if message.channel in suggChannels:
         await message.add_reaction("👍")
         await message.add_reaction("👎")
+    if re.search("GG .*, you just advanced to level .*!", message.content) != None:
+        await message.add_reaction("🖕")
+        await message.channel.send("Shut up, bot.")
     if messageContent == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
     if re.search("^((hello)|(greetings)|(hi))", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
