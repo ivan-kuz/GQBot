@@ -102,7 +102,7 @@ async def roll(ctx, *args):
             flavour += "e. "
         else:
             flavour += "ce, "+str(dice)+" of them. "
-     await ctx.send("Rolling " + flavour + "Landed: " + roll)
+    await ctx.send("Rolling " + flavour + "Landed: " + roll)
     
 @client.event
 async def on_message(message):
