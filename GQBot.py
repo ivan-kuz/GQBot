@@ -5,10 +5,15 @@ import asyncio
 import time, random, re
 
 client = commands.Bot(command_prefix = "$")
+suggChannels = []
 
 @client.event 
 async def on_ready():
     print("GQBot is online! Hail the Fathers!")
+    global suggChannels
+    for c in client.get_all_channels():
+        if c.name == "suggestions":
+            suggChannels.append(c)
     
 @client.command()
 async def ping(ctx):
@@ -100,6 +105,9 @@ async def roll(ctx, *args):
 @client.event
 async def on_message(message):
     messageContent = message.content.lower()
+    if message.channel in suggChannels:
+        await message.add_reaction("👍")
+        await message.add_reaction("👎")
     if messageContent == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
     if re.search("^((hello)|(greetings)|(hi))", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
