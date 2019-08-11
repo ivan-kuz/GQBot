@@ -19,52 +19,75 @@ async def on_ready():
 
 @client.command()
 async def ping(ctx):
+    """Pong!"""
     await ctx.send("Pong!")
 
 @client.command()
 async def hail(ctx):
+    """Hails the fathers."""
     await ctx.send("Hail the fathers!")
 
 @client.command()
 async def spam100(ctx):
+    """Spam pings everyone 100 times."""
     for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
     
 @client.command()
 async def romatime(ctx):
+    """Link to romatime.gq"""
     await ctx.send("http://romatime.gq")
     await ctx.send("The most recent episode is: " + "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
 
 @client.command()
 async def aquaesulis(ctx):
+    """Link to aquaesulis.gq"""
     await ctx.send("http://aquaesulis.gq")
 
 @client.command()
 async def tiffinbbc(ctx):
+    """Link to tiffinbbc.gq"""
     await ctx.send("http://tiffinBBC.gq")
     await ctx.send("WARNING! Formatting might look really weird on big screens!")
     
 @client.command()
 async def github(ctx):
+    """Link to GQBot's Github repo."""
     await ctx.send("https://github.com/ivan-kuz/GQBot/")
     await ctx.send("This is the github repo for the GQBot. If you're an avid coder, feel free to contribute to this wonderful bot!")
     
 @client.command()
 async def wiki(ctx):
+    """Link to GQBot's Github wiki."""
     await ctx.send("https://github.com/ivan-kuz/GQBot/wiki")
     await ctx.send("This is the link to the wiki for the GQBot. If you need some help - you will definitely find it on there!")
 
 @client.command()
 async def quests(ctx):
+    """Link to quests.gq"""
     await ctx.send("Press 'Run' to play your first quest!")
     await ctx.send("http://quests.aquaesulis.gq")
 
 @client.command()
 async def toss(ctx):
+    """Tosses a coin."""
     await ctx.send("Tossing coin... It landed " + random.choice(("heads","tails"))+"!")
 
 @client.command()
+async def flip(ctx):
+    """Flips a coin."""
+    await ctx.send("Flipping coin... It landed " + random.choice(("heads","tails"))+"!")
+
+@client.command()
 async def roll(ctx, *args):
+    """Rolls dice, or picks a choice at random.
+
+$roll --> rolls a single 6-sided die
+$roll x --> rolls a single x-sided die
+$roll x y --> rolls y x-sided dice
+$roll a b c d ... --> outputs one of the choices at random
+
+If any values for the second and third commands are invalid, they default to x=6; y=1."""
     dice = 1
     sides = None
     if len(args) == 0:
@@ -120,7 +143,8 @@ async def on_message(message):
     await client.process_commands(message)
 
 @client.event
-async def on_raw_reaction_add(payload):
+async def on_raw_reaction_add(payload) -> "Automatic Pins":
+    f"""If a message receives {PIN_REACTIONS_MIN} 📌 reactions, pin the message, or if someone with pinning permissions reacts with it."""
     if str(payload.emoji) == "📌":
         msgId = payload.message_id
         channelId = payload.channel_id
@@ -140,6 +164,7 @@ async def on_raw_reaction_add(payload):
 
 @client.command()
 async def gqempire(ctx):
+    """Links to GQEmpire.gq"""
     await ctx.send("http://GQEmpire.gq")
     await ctx.send("This is your main site! Feel free to make it your homepage :)")
 
