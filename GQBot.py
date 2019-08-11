@@ -6,15 +6,17 @@ import time, random, re
 
 client = commands.Bot(command_prefix = "$")
 suggChannels = []
+PIN_REACTIONS_MIN = 3
 
 @client.event 
 async def on_ready():
     print("GQBot is online! Hail the Fathers!")
     global suggChannels
+    suggChannels = []
     for c in client.get_all_channels():
         if c.name == "suggestions":
             suggChannels.append(c)
-    
+
 @client.command()
 async def ping(ctx):
     await ctx.send("Pong!")
@@ -113,9 +115,28 @@ async def on_message(message):
         await message.channel.send("Shut up, bot.")
     if messageContent == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
-    if re.search("^((hello)|(greetings)|(hi))", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
-        await message.channel.send("Hello, "+message.author.display_name+"!")
+    if re.search("^((h+e+ll+o+)|(gr+ee+ti+n+gs+)|(hi+)|(h+e+y+)|(((wa)|')?s+u+p+)|(y+o+))\\b", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
+        await message.channel.send("Hello, {}!".format(message.author.display_name))
     await client.process_commands(message)
+
+@client.event
+async def on_raw_reaction_add(payload):
+    if str(payload.emoji) == "📌":
+        msgId = payload.message_id
+        channelId = payload.channel_id
+        channel = client.get_channel(channelId)
+        if channel == None:
+            return
+        msg = await channel.fetch_message(msgId)
+        if msg.pinned:
+            return
+        reaction = list(filter(lambda x: str(x.emoji)=="📌", msg.reactions))[0]
+        cn = 0
+        async for user in reaction.users():
+            cn += 1
+            if cn >= PIN_REACTIONS_MIN or user.permissions_in(channel).manage_messages:
+                await msg.pin()
+                break
 
 @client.command()
 async def gqempire(ctx):
