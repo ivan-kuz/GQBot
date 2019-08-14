@@ -136,12 +136,13 @@ If any values for the second and third commands are invalid, they default to x=6
     
 @client.event
 async def on_message(message):
+    if message.author.bot and message.author.id != 159985870458322944:
+        return
     messageContent = message.content.lower()
     eyerolls = 0
-    if message.author != client.user:
-        for c in messageContent:
-            if c == "🙄":
-                eyerolls += 1
+    for c in messageContent:
+        if c == "🙄":
+            eyerolls += 1
     if eyerolls > 0:
         ts = "> "
         for er in range(eyerolls):
@@ -162,9 +163,9 @@ async def on_message(message):
         await message.channel.send("General Kenobi!")
         await asyncio.sleep(1)
         await message.channel.send("You *are* a bold one!")
-    if re.search("^((h+e+ll+o+)|(gr+ee+ti+n+gs+)|(hi+)|(h+e+y+)|(((wa)|')?s+u+p+)|(y+o+)|(szia))\\b", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
+    if re.search("^((h+e+ll+o+)|(gr+ee+ti+n+gs+)|(hi+)|(h+e+y+)|(((wa)|')?s+u+p+)|(y+o+)|(szia))\\b", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None:
         await message.channel.send(await gen_greeting(message.author.display_name))
-    if re.search("^(((c|(see)) ?y((a+)|(ou)))|((goo+d)?(by+e+))|((g((ood)?)(.?))?n+(i((te)|(ght)))?)|(おやすみ(なさい)?)|(farewell))\\b", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None and re.search("\\b(bot)|(gqbot)|(lilgq)", message.author.display_name) == None:
+    if re.search("^(((c|(see)) ?y((a+)|(ou)))|((goo+d)?(by+e+))|((g((ood)?)(.?))?n+(i((te)|(ght)))?)|(おやすみ(なさい)?)|(farewell))\\b", messageContent) != None and re.search("\\b((bot)|(gqbot)|(lilgq))\\b", messageContent) != None:
         await message.channel.send(await gen_goodbye(message.author.display_name, re.search("^(((g((ood)?)(.?))?n+(i((te)|(ght)))?)|(おやすみ(なさい)?))\\b", messageContent) != None))
     await client.process_commands(message)
 
@@ -365,4 +366,4 @@ async def on_command_error(ctx, error):
             e.set_footer(text=str(error))
             await ctx.send(embed=e)
 
-client.run("not_telling_you_the_token")
+client.run(TOKEN)
