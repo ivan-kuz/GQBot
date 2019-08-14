@@ -5,8 +5,9 @@ from discord.ext import commands
 import asyncio
 import time, random, re
 import games.snake as snake
+from botconstants import *
 
-client = commands.Bot(command_prefix = "$")
+client = commands.Bot(command_prefix = PREFIX)
 suggChannels = []
 PIN_REACTIONS_MIN = 3
 
@@ -36,6 +37,7 @@ async def spam100(ctx):
     """Spam pings everyone 100 times."""
     for i in range(100):
         await ctx.send("@everyone bow down to the GQEmpire")
+        await asyncio.sleep(2)
     
 @client.command()
 async def romatime(ctx):
@@ -83,13 +85,14 @@ async def flip(ctx):
     await ctx.send("Flipping coin... It landed " + random.choice(("heads","tails"))+"!")
 
 @client.command()
+@formatdoc
 async def roll(ctx, *args):
     """Rolls dice, or picks a choice at random.
 
-$roll --> rolls a single 6-sided die
-$roll x --> rolls a single x-sided die
-$roll x y --> rolls y x-sided dice
-$roll a b c d ... --> outputs one of the choices at random
+{0}roll --> rolls a single 6-sided die
+{0}roll x --> rolls a single x-sided die
+{0}roll x y --> rolls y x-sided dice
+{0}roll a b c d ... --> outputs one of the choices at random
 
 If any values for the second and third commands are invalid, they default to x=6; y=1."""
     dice = 1
@@ -174,12 +177,11 @@ async def gen_goodbye(name, night=False):
 async def gen_greeting(name):
     greeting = random.choice(("Hello, ", "Greetings, ", "Hey, ", "Long time no see, "))
     greeting += "{}. "
-    greeting += random.choice(("", "How have you been?", "Have you seen my new features?", "Type $help to see my commands.", "What's up?"))
+    greeting += random.choice(("", "How have you been?", "Have you seen my new features?", "Type {}help to see my commands.".format(PREFIX_RAW), "What's up?"))
     return greeting.format(name)
 
 @client.event
 async def on_raw_reaction_add(payload) -> "Automatic Pins":
-    f"""If a message receives {PIN_REACTIONS_MIN} 📌 reactions, pin the message, or if someone with pinning permissions reacts with it."""
     if str(payload.emoji) == "📌":
         msgId = payload.message_id
         channelId = payload.channel_id
@@ -203,17 +205,20 @@ async def gqempire(ctx):
     await ctx.send("http://GQEmpire.gq")
     await ctx.send("This is your main site! Feel free to make it your homepage :)")
 
-@client.group()
+@client.group(aliases=["roles"])
 async def role(ctx):
-    """Role managing commands. Must have manage_roles permission to use."""
+    """Role managing commands.
+
+Must have manage_roles permission to use."""
     pass
 
 @role.command(name="add")
 @has_permissions(manage_roles=True)
+@formatdoc
 async def role_add(ctx, rec:discord.Member, role:discord.Role):
     """Give a user an existing role.
 
-$role add user role --> gives user the given role
+{}role add user role --> gives user the given role
 
 Must have role managing permissions."""
     await rec.add_roles(role)
@@ -221,11 +226,12 @@ Must have role managing permissions."""
 
 @role.command(name="create")
 @has_permissions(manage_roles=True)
+@formatdoc
 async def role_create(ctx, rname, copyFrom:discord.Role=None):
     """Create a new role.
 
-$role create name --> makes a new role called "name"
-$role create name other_role --> makes a new role called "name" with the same perms as other_role
+{0}role create name --> makes a new role called "name"
+{0}role create name other_role --> makes a new role called "name" with the same perms as other_role
 
 Must have role managing permissions."""
     if copyFrom == None:
@@ -236,10 +242,11 @@ Must have role managing permissions."""
 
 @role.command(name="edit")
 @has_permissions(manage_roles=True)
+@formatdoc
 async def role_edit(ctx, role:discord.Role):
     """Edit existing role.
 
-$role edit name --> opens Role Editor
+{}role edit name --> opens Role Editor
 
 Role Editor
 Shows a list of 10 permissions on each page.
@@ -298,34 +305,38 @@ React with ❌ to close the editor."""
                 await reaction.remove(user)
 
 @client.command(name="snake")
-async def play_snake(ctx):
+async def play_snake(ctx, magic="no"):
     """Play snake.
 
 Communist edition."""
     reactants = ["🔼","🔽","◀","▶"]
     snakeGame = snake.Game()
+    if magic == "communist":
+        snakeGame.apple = (-1,-1)
+        snakeGame.render()
     botmsg = await ctx.send("```{}```".format(snakeGame.renderString))
     for reactant in reactants:
         await botmsg.add_reaction(reactant)
     while snakeGame.running:
         msg = await ctx.fetch_message(botmsg.id)
         timer = time.time()
-        commandments = []
+        commandments = {0:0,1:0,2:0,3:0}
         for reaction in msg.reactions:
             async for user in reaction.users():
-                if user != msg.author:
+                if user != client.user:
                     await reaction.remove(user)
                     if reaction.emoji in reactants:
-                        commandments.append(reactants.index(reaction.emoji))
-        for com in commandments:
-            snakeGame.xVect, snakeGame.yVect = ((0,-1),(0,1),(-1,0),(1,0))[com]
+                        commandments[reactants.index(reaction.emoji)]+=1
+        vote = max(commandments.keys(), key=lambda x: commandments[x])
+        if commandments[vote] > 0:
+            snakeGame.xVect, snakeGame.yVect = ((0,-1),(0,1),(-1,0),(1,0))[vote]
         msg = await ctx.fetch_message(botmsg.id)
         snakeGame.update()
         gameS = "```{}```".format(snakeGame.renderString)
         await msg.edit(content=gameS)
         await asyncio.sleep(timer+1-time.time())
     e = discord.Embed(title="Game Over!", description="Ended game with length: "+str(len(snakeGame.snake)), colour=0x3232ef)
-    e.set_footer(text="$snake to play again")
+    e.set_footer(text="{}snake to play again".format(PREFIX_RAW))
     await msg.edit(content="",embed=e)
         
 
@@ -334,15 +345,15 @@ async def on_command_error(ctx, error):
         error = error.__cause__ or error
         if isinstance(error, CommandNotFound):
             e = discord.Embed(title="I didn't quite catch that.", description="Maybe look at my help menu if you're stuck?", colour=0xec6761)
-            e.set_footer(text='$help')
+            e.set_footer(text='{}help'.format(PREFIX_RAW))
             await ctx.send(embed=e)
         elif isinstance(error, MissingPermissions):
             e=discord.Embed(title='Wait. That\'s illegal.', description='You don\'t have the right permissions for that, buddy.', colour=0xec6761)
             e.set_footer(text=str(error))
             await ctx.send(embed=e)
         elif isinstance(error, BadArgument):
-            if ctx.message.content[:9] == "$role add":
-                await ctx.send(embed=discord.Embed(title="Role or user doesn't exist.", description="You'll have to create a new role yourself using $role create, or check for mistakes.", colour=0xec6761))
+            if ctx.message.content[:8+PREFIXLEN].lower() == "{}role add".format(PREFIX_RAW):
+                await ctx.send(embed=discord.Embed(title="Role or user doesn't exist.", description="You'll have to create a new role yourself using {}role create, or check for mistakes.".format(PREFIX_RAW), colour=0xec6761))
         elif isinstance(error, asyncio.TimeoutError):
             await ctx.send(embed=discord.Embed(title="Timed out.", description="I waited for a while but it seems the time is up.", colour=0xec6761))
         elif isinstance(error, CommandOnCooldown):
