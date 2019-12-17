@@ -184,7 +184,7 @@ async def on_message(message):
         if regex.GREETING.search(message_content):
             await message.channel.send(await gen_greeting(display_name))
         if regex.FAREWELL.search(message_content):
-            await message.channel.send(await gen_goodbye(display_name, bool(regex.NIGHT(message_content))))
+            await message.channel.send(await gen_goodbye(display_name, bool(regex.NIGHT.search(message_content))))
     await client.process_commands(message)
 
 

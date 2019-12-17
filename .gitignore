@@ -2,3 +2,4 @@
 botconstants.py
 __pycache__/
 .idea/
+config.json
