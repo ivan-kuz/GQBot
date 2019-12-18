@@ -1,7 +1,6 @@
 import discord
-from discord.ext.commands import *
-from discord.ext.commands.errors import *
 from discord.ext import commands
+from discord.ext.commands.errors import *
 import asyncio
 import time
 import random
@@ -9,149 +8,28 @@ import re
 import games.snake as snake
 import regex
 from botconstants import *
+import cogs
 
-client = commands.Bot(command_prefix=PREFIX)
+bot = commands.Bot(command_prefix=PREFIX)
 suggestion_channels = []
 PIN_REACTIONS_MIN = 3
 EMOJI = json.load(open("emoji.json", "r"))
 
+for cog in cogs.COGS:
+    bot.add_cog(cog(bot))
 
-@client.event 
+
+@bot.event
 async def on_ready():
     print("GQBot is online! Hail the Fathers!")
     global suggestion_channels
     suggestion_channels = []
-    for c in client.get_all_channels():
+    for c in bot.get_all_channels():
         if c.name == "suggestions":
             suggestion_channels.append(c)
 
 
-@client.command()
-async def ping(ctx):
-    """Pong!"""
-    await ctx.send("Pong!")
-
-
-@client.command()
-async def hail(ctx):
-    """Hails the fathers."""
-    await ctx.send("Hail the fathers!")
-
-
-@client.command()
-@has_permissions(mention_everyone=True)
-@commands.cooldown(1, 3600)
-async def spam100(ctx):
-    """Spam pings everyone 100 times."""
-    for i in range(100):
-        await ctx.send("@everyone bow down to the GQEmpire")
-        await asyncio.sleep(2)
-
-
-@client.command()
-async def romatime(ctx):
-    """Link to romatime.gq"""
-    await ctx.send("http://romatime.gq")
-    await ctx.send("The most recent episode is: " + "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
-
-
-@client.command()
-async def aquaesulis(ctx):
-    """Link to aquaesulis.gq"""
-    await ctx.send("http://aquaesulis.gq")
-
-
-@client.command()
-async def tiffinbbc(ctx):
-    """Link to tiffinbbc.gq"""
-    await ctx.send("http://tiffinBBC.gq")
-    await ctx.send("WARNING! Formatting might look really weird on big screens!")
-
-
-@client.command()
-async def github(ctx):
-    """Link to GQBot's Github repo."""
-    await ctx.send("https://github.com/ivan-kuz/GQBot/")
-    await ctx.send("This is the github repo for the GQBot." +
-                   "If you're an avid coder, feel free to contribute to this wonderful bot!")
-
-
-@client.command()
-async def wiki(ctx):
-    """Link to GQBot's Github wiki."""
-    await ctx.send("https://github.com/ivan-kuz/GQBot/wiki")
-    await ctx.send("This is the link to the wiki for the GQBot." +
-                   "If you need some help - you will definitely find it on there!")
-
-
-@client.command()
-async def quests(ctx):
-    """Link to quests.gq"""
-    await ctx.send("Press 'Run' to play your first quest!")
-    await ctx.send("http://quests.aquaesulis.gq")
-
-
-@client.command()
-async def toss(ctx):
-    """Tosses a coin."""
-    await ctx.send("Tossing coin... It landed " + random.choice(("heads", "tails"))+"!")
-
-
-@client.command()
-async def flip(ctx):
-    """Flips a coin."""
-    await ctx.send("Flipping coin... It landed " + random.choice(("heads", "tails"))+"!")
-
-
-@client.command()
-@format_doc
-async def roll(ctx, *args):
-    """Rolls dice, or picks a choice at random.
-
-{0}roll --> rolls a single 6-sided die
-{0}roll x --> rolls a single x-sided die
-{0}roll x y --> rolls y x-sided dice
-{0}roll a b c d ... --> outputs one of the choices at random
-
-If any values for the second and third commands are invalid, they default to x=6; y=1."""
-    dice = 1
-    sides = None
-    if len(args) == 0:
-        sides = 6
-    elif len(args) == 1:
-        try:
-            sides = int(args[0])
-            if sides < 1:
-                sides = 6
-        except ValueError:
-            sides = 6
-    elif len(args) == 2:
-        try:
-            sides = int(args[0])
-            dice = int(args[1])
-            if sides < 1:
-                sides = 6
-            if dice < 1:
-                dice = 1
-        except ValueError:
-            sides = None
-    if sides is None:
-        result = '"'+random.choice(args)+'"'
-        flavour = "between "+str(len(args))+" choices. "
-    else:
-        result = 0
-        for i in range(dice):
-            result += random.randint(1, sides)
-        result = str(result)
-        flavour = str(sides) + " sided di"
-        if dice == 1:
-            flavour += "e. "
-        else:
-            flavour += "ce, "+str(dice)+" of them. "
-    await ctx.send("Rolling " + flavour + "Landed: " + result)
-
-
-@client.event
+@bot.event
 async def on_message(message):
     if message.author.bot and message.author.id != 159985870458322944:
         return
@@ -186,7 +64,7 @@ async def on_message(message):
             await message.channel.send(await gen_greeting(display_name))
         if regex.FAREWELL.search(message_content):
             await message.channel.send(await gen_goodbye(display_name, bool(regex.NIGHT.search(message_content))))
-    await client.process_commands(message)
+    await bot.process_commands(message)
 
 
 async def gen_goodbye(name, night=False):
@@ -210,12 +88,12 @@ async def gen_greeting(name):
     return greeting.format(name)
 
 
-@client.event
+@bot.event
 async def on_raw_reaction_add(payload) -> "Automatic Pins":
     if str(payload.emoji) == EMOJI["PIN"]:
         msg_id = payload.message_id
         channel_id = payload.channel_id
-        channel = client.get_channel(channel_id)
+        channel = bot.get_channel(channel_id)
         if channel is None:
             return
         msg = await channel.fetch_message(msg_id)
@@ -230,14 +108,7 @@ async def on_raw_reaction_add(payload) -> "Automatic Pins":
                 break
 
 
-@client.command()
-async def gqempire(ctx):
-    """Links to GQEmpire.gq"""
-    await ctx.send("http://GQEmpire.gq")
-    await ctx.send("This is your main site! Feel free to make it your homepage :)")
-
-
-@client.group(name="role", aliases=["roles"])
+@bot.group(name="role", aliases=["roles"])
 async def role_group(_):
     """Role managing commands.
 
@@ -246,7 +117,7 @@ Must have manage_roles permission to use."""
 
 
 @role_group.command(name="add")
-@has_permissions(manage_roles=True)
+@commands.has_permissions(manage_roles=True)
 @format_doc
 async def role_add(ctx, rec: discord.Member, role: discord.Role):
     """Give a user an existing role.
@@ -259,7 +130,7 @@ Must have role managing permissions."""
 
 
 @role_group.command(name="create")
-@has_permissions(manage_roles=True)
+@commands.has_permissions(manage_roles=True)
 @format_doc
 async def role_create(ctx, r_name, copy_from: discord.Role = None):
     """Create a new role.
@@ -276,7 +147,7 @@ Must have role managing permissions."""
 
 
 @role_group.command(name="edit")
-@has_permissions(manage_roles=True)
+@commands.has_permissions(manage_roles=True)
 @format_doc
 async def role_edit(ctx, role: discord.Role):
     """Edit existing role.
@@ -327,7 +198,7 @@ React with ❌ to close the editor."""
             else:
                 await msg.edit(embed=e)
             try:
-                reaction, user = await client.wait_for('reaction_add', check=c_check)
+                reaction, user = await bot.wait_for('reaction_add', check=c_check)
             except asyncio.TimeoutError:
                 msg.delete()
                 return
@@ -345,7 +216,7 @@ React with ❌ to close the editor."""
                 await reaction.remove(user)
 
 
-@client.command(name="snake")
+@bot.command(name="snake")
 async def play_snake(ctx, magic="no"):
     """Play snake.
 
@@ -367,7 +238,7 @@ Communist edition."""
         commandments = {0: 0, 1: 0, 2: 0, 3: 0}
         for reaction in msg.reactions:
             async for user in reaction.users():
-                if user != client.user:
+                if user != bot.user:
                     await reaction.remove(user)
                     if reaction.emoji in reactants:
                         commandments[reactants.index(reaction.emoji)] += 1
@@ -387,7 +258,7 @@ Communist edition."""
 ERROR_COLOR = 0xec6761
 
 
-@client.listen()
+@bot.listen()
 async def on_command_error(ctx, error):
     error = error.__cause__ or error
     if isinstance(error, CommandNotFound):
@@ -422,4 +293,4 @@ async def on_command_error(ctx, error):
         e.set_footer(text=str(error))
         await ctx.send(embed=e)
 
-client.run(TOKEN)
+bot.run(TOKEN)
