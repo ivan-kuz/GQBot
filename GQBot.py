@@ -13,6 +13,7 @@ from botconstants import *
 client = commands.Bot(command_prefix=PREFIX)
 suggestion_channels = []
 PIN_REACTIONS_MIN = 3
+EMOJI = json.load(open("emoji.json", "r"))
 
 
 @client.event 
@@ -157,21 +158,21 @@ async def on_message(message):
     message_content = message.content.lower()
     eye_rolls = 0
     for c in message_content:
-        if c == "🙄":
+        if c == EMOJI["EYE_ROLL"]:
             eye_rolls += 1
     if eye_rolls > 0:
         ts = "> "
         for er in range(eye_rolls):
-            ts += "🙄"
+            ts += EMOJI["EYE_ROLL"]
         ts += "\n"
         for er in range(eye_rolls):
-            ts += "😎"
+            ts += EMOJI["SUNGLASSES"]
         await message.channel.send(ts)
     if message.channel in suggestion_channels:
-        await message.add_reaction("👍")
-        await message.add_reaction("👎")
+        await message.add_reaction(EMOJI["THUMBS_UP"])
+        await message.add_reaction(EMOJI["THUMBS_DOWN"])
     if re.search("GG .*, you just advanced to level .*!", message.content):
-        await message.add_reaction("🖕")
+        await message.add_reaction(EMOJI["MIDDLE_FINGER"])
         await message.channel.send("Shut up, bot.")
     if message_content == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
@@ -211,7 +212,7 @@ async def gen_greeting(name):
 
 @client.event
 async def on_raw_reaction_add(payload) -> "Automatic Pins":
-    if str(payload.emoji) == "📌":
+    if str(payload.emoji) == EMOJI["PIN"]:
         msg_id = payload.message_id
         channel_id = payload.channel_id
         channel = client.get_channel(channel_id)
@@ -220,7 +221,7 @@ async def on_raw_reaction_add(payload) -> "Automatic Pins":
         msg = await channel.fetch_message(msg_id)
         if msg.pinned:
             return
-        reaction = list(filter(lambda x: str(x.emoji) == "📌", msg.reactions))[0]
+        reaction = list(filter(lambda x: str(x.emoji) == EMOJI["PIN"], msg.reactions))[0]
         cn = 0
         async for user in reaction.users():
             cn += 1
@@ -287,7 +288,7 @@ Shows a list of 10 permissions on each page.
 Members with manage_roles permissions can react with the respective emoji to toggle the permission.
 React with ▶ to move to the next page.
 React with ❌ to close the editor."""
-    reactants = ["0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣", "▶", "❌"]
+    reactants = EMOJI["DIGITS"] + [EMOJI["ARROWS"]["RIGHT"], EMOJI["CROSS_RED"]]
     async with ctx.typing():
         registers = []
         curr_reg = []
@@ -307,7 +308,7 @@ React with ❌ to close the editor."""
             ret = ""
             p_dict = dict(list(iter(role.permissions)))
             for i, r in enumerate(registers[reg_index]):
-                ret += reactants[i]+" "+r+" "+("✅" if p_dict[r] else "❎")+"\n"
+                ret += reactants[i]+" "+r+" "+(EMOJI["TICK"] if p_dict[r] else EMOJI["CROSS_BLUE"])+"\n"
             return ret
 
         def c_check(c_reaction, c_user):
@@ -330,10 +331,10 @@ React with ❌ to close the editor."""
             except asyncio.TimeoutError:
                 msg.delete()
                 return
-            if reaction.emoji == "❌":
+            if reaction.emoji == EMOJI["CROSS_RED"]:
                 await msg.delete()
                 return
-            if reaction.emoji == "▶":
+            if reaction.emoji == EMOJI["ARROW"]["RIGHT"]:
                 reg_index += 1
                 if reg_index >= len(registers)-1:
                     reg_index = 0
@@ -349,7 +350,7 @@ async def play_snake(ctx, magic="no"):
     """Play snake.
 
 Communist edition."""
-    reactants = ["🔼", "🔽", "◀", "▶"]
+    reactants = EMOJI["ARROWS"]["ARRAY"]
     snake_game = snake.Game()
 
     if magic == "communist":
@@ -417,7 +418,7 @@ async def on_command_error(ctx, error):
     else:
         e = discord.Embed(title="Beep boop.",
                           description="That threw an error I didn't quite catch. Don't worry, I'm fine though.",
-                          colour=0xec6761)
+                          colour=ERROR_COLOR)
         e.set_footer(text=str(error))
         await ctx.send(embed=e)
 

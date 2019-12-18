@@ -1,0 +1,19 @@
+{
+  "EYE_ROLL": "\uD83D\uDE44",
+  "SUNGLASSES": "\uD83D\uDE0E",
+  "THUMBS_UP": "\uD83D\uDC4D",
+  "THUMBS_DOWN": "\uD83D\uDC4E",
+  "MIDDLE_FINGER": "\uD83D\uDD95",
+  "PIN": "\uD83D\uDCCC",
+  "DIGITS": ["0\u20e3", "1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3", "9\u20e3"],
+  "CROSS_RED": "\u274c",
+  "CROSS_BLUE": "\u274e",
+  "TICK": "\u2705",
+  "ARROWS": {
+    "ARRAY": ["\uD83D\uDD3C", "\uD83D\uDD3D", ",\u25c0", "\u25b6"],
+    "RIGHT": "\u25b6",
+    "DOWN": "\uD83D\uDD3D",
+    "UP": "\uD83D\uDD3C",
+    "LEFT": "\u25c0"
+  }
+}
