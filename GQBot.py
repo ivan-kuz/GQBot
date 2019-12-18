@@ -260,7 +260,7 @@ Must have role managing permissions."""
 @role_group.command(name="create")
 @has_permissions(manage_roles=True)
 @format_doc
-async def role_create(ctx, r_name, copy_from: discord.Role=None):
+async def role_create(ctx, r_name, copy_from: discord.Role = None):
     """Create a new role.
 
 {0}role create name --> makes a new role called "name"
@@ -292,7 +292,7 @@ React with ❌ to close the editor."""
         registers = []
         curr_reg = []
         c = 0
-        for pair in iter(role.permissions):
+        for pair in role.permissions:
             curr_reg.append(pair[0])
             c += 1
             if c == 10:
@@ -388,37 +388,37 @@ ERROR_COLOR = 0xec6761
 
 @client.listen()
 async def on_command_error(ctx, error):
-        error = error.__cause__ or error
-        if isinstance(error, CommandNotFound):
-            e = discord.Embed(title="I didn't quite catch that.",
-                              description="Maybe look at my help menu if you're stuck?", colour=ERROR_COLOR)
-            e.set_footer(text='{}help'.format(PREFIX_RAW))
-            await ctx.send(embed=e)
-        elif isinstance(error, MissingPermissions):
-            e = discord.Embed(title='Wait. That\'s illegal.',
-                              description='You don\'t have the right permissions for that, buddy.', colour=ERROR_COLOR)
-            e.set_footer(text=str(error))
-            await ctx.send(embed=e)
-        elif isinstance(error, BadArgument):
-            if ctx.message.content[:8 + PREFIX_LEN].lower() == "{}role add".format(PREFIX_RAW):
-                await ctx.send(embed=discord.Embed(title="Role or user doesn't exist.",
-                               description="You'll have to create a new role yourself, " +
-                               "using {}role create, or check for mistakes.".format(PREFIX_RAW),
-                                                   colour=ERROR_COLOR))
-        elif isinstance(error, asyncio.TimeoutError):
-            await ctx.send(embed=discord.Embed(title="Timed out.",
-                                               description="I waited for a while but it seems the time is up.",
+    error = error.__cause__ or error
+    if isinstance(error, CommandNotFound):
+        e = discord.Embed(title="I didn't quite catch that.",
+                          description="Maybe look at my help menu if you're stuck?", colour=ERROR_COLOR)
+        e.set_footer(text='{}help'.format(PREFIX_RAW))
+        await ctx.send(embed=e)
+    elif isinstance(error, MissingPermissions):
+        e = discord.Embed(title='Wait. That\'s illegal.',
+                          description='You don\'t have the right permissions for that, buddy.', colour=ERROR_COLOR)
+        e.set_footer(text=str(error))
+        await ctx.send(embed=e)
+    elif isinstance(error, BadArgument):
+        if ctx.message.content[:8 + PREFIX_LEN].lower() == "{}role add".format(PREFIX_RAW):
+            await ctx.send(embed=discord.Embed(title="Role or user doesn't exist.",
+                           description="You'll have to create a new role yourself, " +
+                           "using {}role create, or check for mistakes.".format(PREFIX_RAW),
                                                colour=ERROR_COLOR))
-        elif isinstance(error, CommandOnCooldown):
-            e = discord.Embed(title='I have a cool-down, you know!', description='That command has a cool-down.',
-                              colour=ERROR_COLOR)
-            e.set_footer(text=str(error))
-            await ctx.send(embed=e)
-        else:
-            e = discord.Embed(title="Beep boop.",
-                              description="That threw an error I didn't quite catch. Don't worry, I'm fine though.",
-                              colour=0xec6761)
-            e.set_footer(text=str(error))
-            await ctx.send(embed=e)
+    elif isinstance(error, asyncio.TimeoutError):
+        await ctx.send(embed=discord.Embed(title="Timed out.",
+                                           description="I waited for a while but it seems the time is up.",
+                                           colour=ERROR_COLOR))
+    elif isinstance(error, CommandOnCooldown):
+        e = discord.Embed(title='I have a cool-down, you know!', description='That command has a cool-down.',
+                          colour=ERROR_COLOR)
+        e.set_footer(text=str(error))
+        await ctx.send(embed=e)
+    else:
+        e = discord.Embed(title="Beep boop.",
+                          description="That threw an error I didn't quite catch. Don't worry, I'm fine though.",
+                          colour=0xec6761)
+        e.set_footer(text=str(error))
+        await ctx.send(embed=e)
 
 client.run(TOKEN)
