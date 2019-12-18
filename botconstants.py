@@ -15,6 +15,7 @@ TOKEN = config["TOKEN"]
 PREFIX_RAW = config["PREFIX_RAW"]
 PREFIX_LEN = len(PREFIX_RAW)
 PREFIX = config["PREFIX_ARRAY"]
+MEE6_ID = 159985870458322944
 
 
 def format_doc(func):

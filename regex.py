@@ -5,3 +5,4 @@ BOT_MENTION = compile(r'\b((bot)|(gqbot)|(lilgq))\b')
 FAREWELL = compile(r"^(((c|(see)) ?y((a+)|(ou)))|((goo+d)?(by+e+))|" +
                    r"((g((ood)?)(.?))?n+(i((te)|(ght)))?)|(おやすみ(なさい)?)|(farewell))\b")
 NIGHT = compile(r"^(((g((ood)?)(.?))?n+(i((te)|(ght)))?)|(おやすみ(なさい)?))\b")
+MEE6 = compile("GG .*, you just advanced to level .*!")

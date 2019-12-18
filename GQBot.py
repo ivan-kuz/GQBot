@@ -31,25 +31,18 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.author.bot and message.author.id != 159985870458322944:
+    if message.author.bot and message.author.id != MEE6_ID:  # Return if the author is a bot, unless it is MEE6.
         return
     message_content = message.content.lower()
-    eye_rolls = 0
-    for c in message_content:
-        if c == EMOJI["EYE_ROLL"]:
-            eye_rolls += 1
-    if eye_rolls > 0:
-        ts = "> "
-        for er in range(eye_rolls):
-            ts += EMOJI["EYE_ROLL"]
-        ts += "\n"
-        for er in range(eye_rolls):
-            ts += EMOJI["SUNGLASSES"]
-        await message.channel.send(ts)
+    if EMOJI["EYE_ROLL"] in message_content:
+        reply = "> {}\n".format(message.content)
+        reply += re.sub(EMOJI["EYE_ROLL"], EMOJI["SUNGLASSES"], message_content)
+        await message.channel.send(reply)
+        await message.add_reaction(EMOJI["SUNGLASSES"])
     if message.channel in suggestion_channels:
         await message.add_reaction(EMOJI["THUMBS_UP"])
         await message.add_reaction(EMOJI["THUMBS_DOWN"])
-    if re.search("GG .*, you just advanced to level .*!", message.content):
+    if regex.MEE6.search(message.content):
         await message.add_reaction(EMOJI["MIDDLE_FINGER"])
         await message.channel.send("Shut up, bot.")
     if message_content == "calm":
@@ -112,7 +105,7 @@ async def on_raw_reaction_add(payload) -> "Automatic Pins":
 async def role_group(_):
     """Role managing commands.
 
-Must have manage_roles permission to use."""
+    Must have manage_roles permission to use."""
     pass
 
 
@@ -122,9 +115,9 @@ Must have manage_roles permission to use."""
 async def role_add(ctx, rec: discord.Member, role: discord.Role):
     """Give a user an existing role.
 
-{}role add user role --> gives user the given role
+    {}role add user role --> gives user the given role
 
-Must have role managing permissions."""
+    Must have role managing permissions."""
     await rec.add_roles(role)
     await ctx.send("Gave "+rec.mention+" the role "+role.name+".")
 
@@ -135,10 +128,10 @@ Must have role managing permissions."""
 async def role_create(ctx, r_name, copy_from: discord.Role = None):
     """Create a new role.
 
-{0}role create name --> makes a new role called "name"
-{0}role create name other_role --> makes a new role called "name" with the same perms as other_role
+    {0}role create name --> makes a new role called "name"
+    {0}role create name other_role --> makes a new role called "name" with the same perms as other_role
 
-Must have role managing permissions."""
+    Must have role managing permissions."""
     if copy_from is None:
         await ctx.guild.create_role(name=r_name)
     else:
@@ -152,13 +145,13 @@ Must have role managing permissions."""
 async def role_edit(ctx, role: discord.Role):
     """Edit existing role.
 
-{}role edit name --> opens Role Editor
+    {}role edit name --> opens Role Editor
 
-Role Editor
-Shows a list of 10 permissions on each page.
-Members with manage_roles permissions can react with the respective emoji to toggle the permission.
-React with ▶ to move to the next page.
-React with ❌ to close the editor."""
+    Role Editor
+    Shows a list of 10 permissions on each page.
+    Members with manage_roles permissions can react with the respective emoji to toggle the permission.
+    React with ▶ to move to the next page.
+    React with ❌ to close the editor."""
     reactants = EMOJI["DIGITS"] + [EMOJI["ARROWS"]["RIGHT"], EMOJI["CROSS_RED"]]
     async with ctx.typing():
         registers = []
@@ -220,7 +213,7 @@ React with ❌ to close the editor."""
 async def play_snake(ctx, magic="no"):
     """Play snake.
 
-Communist edition."""
+    Communist edition."""
     reactants = EMOJI["ARROWS"]["ARRAY"]
     snake_game = snake.Game()
 
