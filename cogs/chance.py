@@ -1,17 +1,15 @@
 from discord.ext import commands
 import random
 from botconstants import format_doc
+from cogs.base import CogBase
 
 
-class ChanceCog(commands.Cog):
+class ChanceCog(CogBase):
     """Plays dice, unlike God."""
 
-    @staticmethod
-    def get_colour():
+    @property
+    def colour(self):
         return random.randint(0, 0xFFFFFF)  # The color will be random each time it is requested.
-
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command()
     async def toss(self, ctx):

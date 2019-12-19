@@ -1,20 +1,13 @@
 import asyncio
 from urllib.parse import quote_plus
-
 from discord.ext import commands
+from cogs.base import CogBase
 
 
-class BasicCog(commands.Cog):
+class BasicCog(CogBase):
     """Basic commands, such as links."""
 
     COLOUR = 0x0000FF
-
-    @staticmethod
-    def get_colour():
-        return BasicCog.COLOUR
-
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command()
     async def ping(self, ctx):
