@@ -6,7 +6,7 @@ from cogs.base import CogBase
 from utils import sentence_case, list_values
 
 
-class ChanceCog(CogBase, "Chance"):
+class ChanceCog(CogBase, name="Chance"):
     """Plays dice, unlike God."""
 
     @property
