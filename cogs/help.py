@@ -3,7 +3,7 @@ from cogs.base import CogBase
 from collections import OrderedDict
 
 
-class HelpCog(CogBase):
+class HelpCog(CogBase, name="Help"):
     """Help command."""
 
     COLOUR = 0x000000
@@ -22,6 +22,6 @@ class HelpCog(CogBase):
     @staticmethod
     async def get_help_on(ctx, item):
         if isinstance(item, CogBase):
-            sub_commands = ({"name": cmd, "value": cmd.help, "inline": False} for cmd in item.get_commands())
+            sub_commands = ({"name": cmd, "value": cmd.help.split("/n")[0], "inline": False} for cmd in item.get_commands())
             embed = item._make_embed(*sub_commands, title=item.qualified_name, description=item.description)
             await ctx.send(embed=embed)

@@ -4,7 +4,7 @@ from discord.ext import commands
 from cogs.base import CogBase
 
 
-class BasicCog(CogBase):
+class BasicCog(CogBase, name="Basic"):
     """Basic commands, such as links."""
 
     COLOUR = 0x0000FF

@@ -6,7 +6,7 @@ from botconstants import EMOJI, PREFIX_RAW
 from cogs.base import CogBase
 
 
-class GamesCog(CogBase):
+class GamesCog(CogBase, name="Games"):
     """Fun games!"""
 
     COLOUR = 0xFFFFFF

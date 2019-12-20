@@ -6,7 +6,7 @@ from cogs.base import CogBase
 import itertools as it
 
 
-class RoleCog(CogBase):
+class RoleCog(CogBase, name="Roles and Permissions"):
     """Role and permission managing commands."""
 
     COLOUR = 0xFF00FF
