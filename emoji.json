@@ -10,7 +10,7 @@
   "CROSS_BLUE": "\u274e",
   "TICK": "\u2705",
   "ARROWS": {
-    "ARRAY": ["\uD83D\uDD3C", "\uD83D\uDD3D", ",\u25c0", "\u25b6"],
+    "ARRAY": ["\uD83D\uDD3C", "\uD83D\uDD3D", "\u25c0\ufe0f", "\u25b6\ufe0f"],
     "RIGHT": "\u25b6",
     "DOWN": "\uD83D\uDD3D",
     "UP": "\uD83D\uDD3C",

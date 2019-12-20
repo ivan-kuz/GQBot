@@ -1,6 +1,5 @@
 import asyncio
 import random
-import discord
 import time
 from discord.ext import commands
 from botconstants import EMOJI, PREFIX_RAW
@@ -8,7 +7,7 @@ from cogs.base import CogBase
 
 
 class GamesCog(CogBase):
-    """Basic commands, such as links."""
+    """Fun games!"""
 
     COLOUR = 0xFFFFFF
 
@@ -23,8 +22,6 @@ class GamesCog(CogBase):
             self.bSize = 11
             self.running = True
             self.plant_apple()
-            self.render()
-            self.render_string = ""
 
         def update(self):
             if not self.running:
@@ -43,24 +40,25 @@ class GamesCog(CogBase):
                 self.snake.pop(0)
             else:
                 self.plant_apple()
-            self.render()
 
         def plant_apple(self):
             while self.apple in self.snake:
                 self.apple = (random.randint(0, self.bSize - 1), random.randint(0, self.bSize - 1))
 
-        def render(self):
-            self.render_string = ""
+        @property
+        def render_string(self):
+            render_string = ""
             for i in range(self.bSize + 2):
-                self.render_string += "$ "
-            self.render_string += "\n"
+                render_string += "$ "
+            render_string += "\n"
             for y in range(self.bSize):
-                self.render_string += "$ "
+                render_string += "$ "
                 for x in range(self.bSize):
-                    self.render_string += "@ " if self.apple == (x, y) else ("# " if (x, y) in self.snake else "  ")
-                self.render_string += "$\n"
+                    render_string += "@ " if self.apple == (x, y) else ("# " if (x, y) in self.snake else "  ")
+                render_string += "$\n"
             for i in range(self.bSize + 2):
-                self.render_string += "$ "
+                render_string += "$ "
+            return render_string
 
     @commands.command(name="snake")
     async def play_snake(self, ctx, magic="no"):
@@ -72,7 +70,6 @@ class GamesCog(CogBase):
 
         if magic == "communist":
             snake_game.apple = (-1, -1)
-            snake_game.render()
 
         bot_msg = await ctx.send("```{}```".format(snake_game.render_string))
         for reactant in reactants:
@@ -95,7 +92,11 @@ class GamesCog(CogBase):
             game_s = "```{}```".format(snake_game.render_string)
             await msg.edit(content=game_s)
             await asyncio.sleep(timer + 1 - time.time())
-        e = discord.Embed(title="Game Over!",
-                          description="Ended game with length: " + str(len(snake_game.snake)), colour=0x3232ef)
-        e.set_footer(text="{}snake to play again".format(PREFIX_RAW))
+
+        e = self._make_embed(title="Game Over!",
+                             description="Ended game with length: " + str(len(snake_game.snake)),
+                             colour=0x3232ef,
+                             footer={"text": "{}snake to play again".format(PREFIX_RAW)})
+
+        await msg.clear_reactions()
         await msg.edit(content="", embed=e)

@@ -3,6 +3,7 @@ import asyncio
 import discord
 from botconstants import format_doc, EMOJI
 from cogs.base import CogBase
+import itertools as it
 
 
 class RoleCog(CogBase):
@@ -27,12 +28,12 @@ class RoleCog(CogBase):
 
         Must have role managing permissions."""
         await rec.add_roles(role)
-        await ctx.send("Gave "+rec.mention+" the role "+role.name+".")
+        await self._send_simple(ctx, "Gave "+rec.mention+" the role "+role.name+".")
 
     @role_group.command(name="create")
     @commands.has_permissions(manage_roles=True)
     @format_doc
-    async def role_create(self, ctx, r_name, copy_from: discord.Role = None):
+    async def role_create(self, ctx, role: str, copy_from: discord.Role = None):
         """Create a new role.
 
         {0}role create name --> makes a new role called "name"
@@ -40,10 +41,10 @@ class RoleCog(CogBase):
 
         Must have role managing permissions."""
         if copy_from is None:
-            await ctx.guild.create_role(name=r_name)
+            await ctx.guild.create_role(name=role)
         else:
-            await ctx.guild.create_role(name=r_name, permissions=copy_from.permissions)
-        await ctx.send("Created new role: " + r_name)
+            await ctx.guild.create_role(name=role, permissions=copy_from.permissions)
+        await self._send_simple(ctx, "Created new role: " + role)
 
     @role_group.command(name="edit")
     @commands.has_permissions(manage_roles=True)
@@ -60,20 +61,6 @@ class RoleCog(CogBase):
         React with ❌ to close the editor."""
         reactants = EMOJI["DIGITS"] + [EMOJI["ARROWS"]["RIGHT"], EMOJI["CROSS_RED"]]
         async with ctx.typing():
-            registers = []
-            curr_reg = []
-            c = 0
-            for pair in role.permissions:
-                curr_reg.append(pair[0])
-                c += 1
-                if c == 10:
-                    c = 0
-                    registers.append(curr_reg[:])
-                    curr_reg = []
-            registers.append(curr_reg[:])
-            reg_index = 0
-            msg = None
-
             async def update_embed():
                 ret = ""
                 p_dict = dict(list(iter(role.permissions)))
@@ -86,30 +73,51 @@ class RoleCog(CogBase):
                         c_user.permissions_in(msg.channel).manage_roles and
                         c_reaction.message.id == msg.id)
 
-            while True:
-                d = await update_embed()
-                e = discord.Embed(title="Editing role: "+role.name, description=d, colour=0x00ff00)
-                e.set_footer(text="Role Editor")
-                if msg is None:
-                    msg = await ctx.send(embed=e)
-                    for e in reactants:
-                        await msg.add_reaction(e)
-                else:
-                    await msg.edit(embed=e)
-                try:
-                    reaction, user = await self.bot.wait_for('reaction_add', check=c_check)
-                except asyncio.TimeoutError:
-                    msg.delete()
-                    return
-                if reaction.emoji == EMOJI["CROSS_RED"]:
-                    await msg.delete()
-                    return
-                if reaction.emoji == EMOJI["ARROW"]["RIGHT"]:
-                    reg_index += 1
-                    if reg_index >= len(registers)-1:
-                        reg_index = 0
-                    await reaction.remove(ctx.author)
-                elif reaction.emoji in reactants:
-                    perm = registers[reg_index][reactants.index(reaction.emoji)]
-                    setattr(role.permissions, perm, not getattr(role.permissions, perm))
-                    await reaction.remove(user)
+            def build_embed(desc):
+                em = discord.Embed(title="Editing role: " + role.name, description=desc, colour=0x00ff00)
+                em.set_footer(text="Role Editor")
+                return em
+
+            registers = []
+            curr_reg = []
+
+            for count, pair in zip(it.cycle(range(10)), role.permissions):
+                curr_reg.append(pair[0])
+                if count == 9:
+                    registers.append(curr_reg[:])
+                    curr_reg = []
+
+            registers.append(curr_reg[:])
+            reg_index = 0
+
+            msg = await ctx.send(embed=build_embed(await update_embed()))
+
+            for e in reactants:
+                await msg.add_reaction(e)
+
+        while True:
+            e = build_embed(await update_embed())
+            await msg.edit(embed=e)
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', check=c_check)
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                msg.edit(embed=discord.Embed(title="Finished Editing Role: " + role.name,
+                                             description="Timed out.",
+                                             colour=0x00ff00))
+                return
+            if reaction.emoji == EMOJI["CROSS_RED"]:
+                await msg.clear_reactions()
+                await msg.edit(embed=discord.Embed(title="Finished Editing Role: "+role.name,
+                                                   description="Closed manually.",
+                                                   colour=0x00ff00))
+                return
+            if reaction.emoji == EMOJI["ARROWS"]["RIGHT"]:
+                reg_index += 1
+                if reg_index >= len(registers)-1:
+                    reg_index = 0
+                await reaction.remove(ctx.author)
+            elif reaction.emoji in reactants:
+                perm = registers[reg_index][reactants.index(reaction.emoji)]
+                setattr(role.permissions, perm, not getattr(role.permissions, perm))
+                await reaction.remove(user)

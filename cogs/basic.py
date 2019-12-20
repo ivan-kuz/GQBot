@@ -12,12 +12,12 @@ class BasicCog(CogBase):
     @commands.command()
     async def ping(self, ctx):
         """Pong!"""
-        await ctx.send("Pong!")
+        await self._send_simple(ctx, "Pong!")
 
     @commands.command()
     async def hail(self, ctx):
         """Hails the fathers."""
-        await ctx.send("Hail the fathers!")
+        await self._send_simple(ctx, "Hail the fathers!")
 
     @commands.command()
     @commands.has_permissions(mention_everyone=True)
@@ -25,51 +25,51 @@ class BasicCog(CogBase):
     async def spam100(self, ctx):
         """Spam pings everyone 100 times."""
         for i in range(100):
-            await ctx.send("@everyone bow down to the GQEmpire")
+            await self._send_simple(ctx, "@everyone bow down to the GQEmpire")
             await asyncio.sleep(2)
 
     @commands.command()
     async def romatime(self, ctx):
         """Link to romatime.gq"""
-        await ctx.send("http://romatime.gq")
-        await ctx.send("The most recent episode is: " + "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
+        await self._send_simple(ctx, "http://romatime.gq")
+        await self._send_simple(ctx, "The most recent episode is: " + "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
 
     @commands.command()
     async def aquaesulis(self, ctx):
         """Link to aquaesulis.gq"""
-        await ctx.send("http://aquaesulis.gq")
+        await self._send_simple(ctx, "http://aquaesulis.gq")
 
     @commands.command()
     async def tiffinbbc(self, ctx):
         """Link to tiffinbbc.gq"""
-        await ctx.send("http://tiffinBBC.gq")
-        await ctx.send("WARNING! Formatting might look really weird on big screens!")
+        await self._send_simple(ctx, "http://tiffinBBC.gq")
+        await self._send_simple(ctx, "WARNING! Formatting might look really weird on big screens!")
 
     @commands.command()
     async def github(self, ctx):
         """Link to GQBot's Github repo."""
-        await ctx.send("https://github.com/ivan-kuz/GQBot/")
-        await ctx.send("This is the github repo for the GQBot." +
-                       "If you're an avid coder, feel free to contribute to this wonderful bot!")
+        await self._send_simple(ctx, "https://github.com/ivan-kuz/GQBot/")
+        await self._send_simple(ctx, "This is the github repo for the GQBot." +
+                                     "If you're an avid coder, feel free to contribute to this wonderful bot!")
 
     @commands.command()
     async def wiki(self, ctx):
         """Link to GQBot's Github wiki."""
-        await ctx.send("https://github.com/ivan-kuz/GQBot/wiki")
-        await ctx.send("This is the link to the wiki for the GQBot." +
-                       "If you need some help - you will definitely find it on there!")
+        await self._send_simple(ctx, "https://github.com/ivan-kuz/GQBot/wiki")
+        await self._send_simple(ctx, "This is the link to the wiki for the GQBot." +
+                                     "If you need some help - you will definitely find it on there!")
 
     @commands.command()
     async def quests(self, ctx):
         """Link to quests.gq"""
-        await ctx.send("Press 'Run' to play your first quest!")
-        await ctx.send("http://quests.aquaesulis.gq")
+        await self._send_simple(ctx, "Press 'Run' to play your first quest!")
+        await self._send_simple(ctx, "http://quests.aquaesulis.gq")
 
     @commands.command()
     async def gqempire(self, ctx):
         """Links to GQEmpire.gq"""
-        await ctx.send("http://GQEmpire.gq")
-        await ctx.send("This is your main site! Feel free to make it your homepage :)")
+        await self._send_simple(ctx, "http://GQEmpire.gq")
+        await self._send_simple(ctx, "This is your main site! Feel free to make it your homepage :)")
 
     @commands.command()
     async def lmgtfy(self, ctx, *query: str):
@@ -85,4 +85,4 @@ class BasicCog(CogBase):
                 elif msg.id == ctx.message.id:
                     flag = True
 
-        await ctx.send("https://lmgtfy.com/?q={}".format(quote_plus(query)))
+        await self._send_simple(ctx, "https://lmgtfy.com/?q={}".format(quote_plus(query)))
