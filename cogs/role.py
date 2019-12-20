@@ -22,14 +22,14 @@ class RoleCog(CogBase, name="Roles and Permissions"):
     @role_group.command(name="add")
     @commands.has_permissions(manage_roles=True)
     @format_doc
-    async def role_add(self, ctx, rec: discord.Member, role: discord.Role):
+    async def role_add(self, ctx, recipient: discord.Member, role: discord.Role):
         """Give a user an existing role.
 
         {}role add user role --> gives user the given role
 
         Must have role managing permissions."""
-        await rec.add_roles(role)
-        await self._send_simple(ctx, "Gave "+rec.mention+" the role "+role.name+".")
+        await recipient.add_roles(role)
+        await self._send_simple(ctx, "Gave " + recipient.mention + " the role " + role.name + ".")
 
     @role_group.command(name="create")
     @commands.has_permissions(manage_roles=True)

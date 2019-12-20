@@ -1,6 +1,6 @@
 from discord.ext import commands
 from cogs.base import CogBase
-from utils import format_doc
+from utils import format_doc, PREFIX_RAW
 
 
 class HelpCog(CogBase, name="Help"):
@@ -38,7 +38,7 @@ class HelpCog(CogBase, name="Help"):
                 except AttributeError:
                     break
                 for child in c_super.commands:
-                    if arg in child.aliases:
+                    if arg == child.name or arg in child.aliases:
                         c_super = child
                         unchanged = False
                 if unchanged:
@@ -57,10 +57,16 @@ class HelpCog(CogBase, name="Help"):
             sub_commands = [{"name": cmd,
                              "value": cmd.help if detailed else cmd.help.split("\n")[0],
                              "inline": False}
-                            for cmd in item.commands()]
+                            for cmd in item.commands]
             embed = item.cog.build_embed(*sub_commands, title=item.qualified_name, description=item.help)
         elif isinstance(item, commands.Command):
-            desc = item.usage + "\n" + item.help
+            desc = """{prefix}{name}{aliases} {signature}
+            
+            {help}""".format(prefix=PREFIX_RAW,
+                             name=item.qualified_name,
+                             aliases="[, {}]".format(", ".join(item.aliases)) if item.aliases else "",
+                             signature=item.signature,
+                             help=item.help)
             embed = item.cog.build_embed(title=item.qualified_name, description=desc)
         else:
             raise commands.CommandNotFound(str(item))

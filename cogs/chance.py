@@ -13,14 +13,14 @@ class ChanceCog(CogBase, name="Chance"):
         return random.randint(0, 0xFFFFFF)  # The color will be random each time it is requested.
 
     @commands.command(aliases=["toss", "throw"])
-    async def flip(self, ctx: commands.Context, act, *extra_flavour: str):
+    async def flip(self, ctx: commands.Context, action, *extra_flavour: str):
         """Flips a coin."""
         # Ensure that the verb used is the one used to invoke the command.
-        if not act:
-            act = ctx.invoked_with
+        if not action:
+            action = ctx.invoked_with
         while True:
             try:
-                verb = conjugate(act, "VBG")  # Conjugate to be a present participle.
+                verb = conjugate(action, "VBG")  # Conjugate to be a present participle.
                 if extra_flavour:
                     verb += " "+" ".join(extra_flavour)
                 break
