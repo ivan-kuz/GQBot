@@ -1,9 +1,8 @@
 from discord.ext import commands
 import random
 from pattern.text.en import conjugate
-from botconstants import format_doc
 from cogs.base import CogBase
-from utils import sentence_case, list_values
+from utils import sentence_case, list_values, format_doc
 
 
 class ChanceCog(CogBase, name="Chance"):

@@ -4,8 +4,8 @@ from discord.ext.commands.errors import *
 import asyncio
 import random
 import re
-import regex
-from botconstants import *
+from utils import regex
+from utils.botconstants import *
 import cogs
 
 bot = commands.Bot(command_prefix=PREFIX)

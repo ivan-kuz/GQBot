@@ -1,7 +1,8 @@
 from discord.ext import commands
 import asyncio
 import discord
-from botconstants import format_doc, EMOJI
+from utils.botconstants import EMOJI
+from utils import format_doc
 from cogs.base import CogBase
 import itertools as it
 

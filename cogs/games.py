@@ -2,7 +2,7 @@ import asyncio
 import random
 import time
 from discord.ext import commands
-from botconstants import EMOJI, PREFIX_RAW
+from utils.botconstants import EMOJI, PREFIX_RAW
 from cogs.base import CogBase
 
 
@@ -93,7 +93,7 @@ class GamesCog(CogBase, name="Games"):
             await msg.edit(content=game_s)
             await asyncio.sleep(timer + 1 - time.time())
 
-        e = self._make_embed(title="Game Over!",
+        e = self.build_embed(title="Game Over!",
                              description="Ended game with length: " + str(len(snake_game.snake)),
                              colour=0x3232ef,
                              footer={"text": "{}snake to play again".format(PREFIX_RAW)})

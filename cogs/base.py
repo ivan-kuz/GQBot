@@ -12,6 +12,8 @@ class CogBase(commands.Cog):
 
     COLOUR = 0xFF0000
 
+    hidden = False
+
     @property
     def colour(self) -> int:
         return self.COLOUR
@@ -19,7 +21,7 @@ class CogBase(commands.Cog):
     def __init__(self, bot: commands.bot) -> None:
         self.bot = bot
 
-    def _make_embed(self,
+    def build_embed(self,
                     *fields: Field,
                     footer: Footer = None,
                     colour: int = None,
@@ -48,11 +50,11 @@ class CogBase(commands.Cog):
         return embed
 
     async def _send_simple(self, ctx: commands.Context, text: str, title: str = None) -> None:
-        await ctx.send(embed=self._make_embed(title=self._get_embed_title(ctx) if title is None else title,
+        await ctx.send(embed=self.build_embed(title=self._get_embed_title(ctx) if title is None else title,
                                               description=text))
 
     async def _send_advanced(self, ctx, text="", *args, **kwargs):
-        e = self._make_embed(*args, **kwargs)
+        e = self.build_embed(*args, **kwargs)
         await ctx.send(text, embed=e)
 
     # method may need to be dynamic for child classes
