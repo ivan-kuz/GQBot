@@ -107,12 +107,12 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                 reaction, user = await self.bot.wait_for('reaction_add', check=c_check)
             except asyncio.TimeoutError:
                 await msg.clear_reactions()
-                await msg.edit(embed=self.build_embed(title="Finished Editing Role: " + role.name,
+                await msg.edit(embed=self.build_embed(title="Finished Editing Role: "+role.name,
                                                       description="Timed out."))
                 return
             if reaction.emoji == EMOJI["CROSS_RED"]:
                 await msg.clear_reactions()
-                await msg.edit(embed=self.build_embed(title="Finished Editing Role: " + role.name,
+                await msg.edit(embed=self.build_embed(title="Finished Editing Role: "+role.name,
                                                       description="Closed manually."))
                 return
             if reaction.emoji == EMOJI["ARROWS"]["RIGHT"]:

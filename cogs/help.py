@@ -71,5 +71,5 @@ class HelpCog(CogBase, name="Help"):
             embed = item.cog.build_embed(title="Showing help for: {}{}".format(PREFIX_RAW, str(item)),
                                          description=desc)
         else:
-            raise commands.CommandNotFound(str(item))
+            raise commands.CommandNotFound()
         await ctx.send(embed=embed)
