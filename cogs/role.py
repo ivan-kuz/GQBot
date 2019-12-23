@@ -1,6 +1,7 @@
 from discord.ext import commands
 import asyncio
 import discord
+import re
 from utils.botconstants import EMOJI
 from utils import format_doc
 from cogs.base import CogBase
@@ -66,7 +67,8 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                 ret = ""
                 p_dict = dict(list(iter(role.permissions)))
                 for i, r in enumerate(registers[reg_index]):
-                    ret += reactants[i]+" "+r+" "+(EMOJI["TICK"] if p_dict[r] else EMOJI["CROSS_BLUE"])+"\n"
+                    ret += reactants[i]+" {} {}\n".format(re.sub("_", " ", r),
+                                                          (EMOJI["TICK"] if p_dict[r] else EMOJI["CROSS_BLUE"]))
                 return ret
 
             def c_check(c_reaction, c_user):
@@ -75,15 +77,17 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                         c_reaction.message.id == msg.id)
 
             def build_embed(desc):
-                em = discord.Embed(title="Editing role: " + role.name, description=desc, colour=0x00ff00)
-                em.set_footer(text="Role Editor")
+                em = self.build_embed(title="Editing role: " + role.name,
+                                      description=desc, colour=role.colour,
+                                      footer={"text": "Role Editor | Page {} of {}"\
+                                      .format(reg_index+1, len(registers)-1)})
                 return em
 
             registers = []
             curr_reg = []
 
-            for count, pair in zip(it.cycle(range(10)), role.permissions):
-                curr_reg.append(pair[0])
+            for count, (perm, _) in zip(it.cycle(range(10)), role.permissions):
+                curr_reg.append(perm)
                 if count == 9:
                     registers.append(curr_reg[:])
                     curr_reg = []
@@ -103,15 +107,13 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                 reaction, user = await self.bot.wait_for('reaction_add', check=c_check)
             except asyncio.TimeoutError:
                 await msg.clear_reactions()
-                msg.edit(embed=discord.Embed(title="Finished Editing Role: " + role.name,
-                                             description="Timed out.",
-                                             colour=0x00ff00))
+                await msg.edit(embed=self.build_embed(title="Finished Editing Role: " + role.name,
+                                                      description="Timed out."))
                 return
             if reaction.emoji == EMOJI["CROSS_RED"]:
                 await msg.clear_reactions()
-                await msg.edit(embed=discord.Embed(title="Finished Editing Role: "+role.name,
-                                                   description="Closed manually.",
-                                                   colour=0x00ff00))
+                await msg.edit(embed=self.build_embed(title="Finished Editing Role: " + role.name,
+                                                      description="Closed manually."))
                 return
             if reaction.emoji == EMOJI["ARROWS"]["RIGHT"]:
                 reg_index += 1

@@ -48,17 +48,18 @@ class HelpCog(CogBase, name="Help"):
     @staticmethod
     async def get_help_on(ctx, item, detailed=False):
         if isinstance(item, CogBase):
-            sub_commands = [{"name": cmd,
+            sub_commands = [{"name": PREFIX_RAW+str(cmd),
                              "value": cmd.help if detailed else cmd.help.split("\n")[0],
                              "inline": False}
                             for cmd in item.get_commands()]
             embed = item.build_embed(*sub_commands, title=item.qualified_name, description=item.description)
         elif isinstance(item, commands.Group):
-            sub_commands = [{"name": cmd,
+            sub_commands = [{"name": PREFIX_RAW+str(cmd),
                              "value": cmd.help if detailed else cmd.help.split("\n")[0],
                              "inline": False}
                             for cmd in item.commands]
-            embed = item.cog.build_embed(*sub_commands, title=item.qualified_name, description=item.help)
+            embed = item.cog.build_embed(*sub_commands, title="Showing help for: {}{}".format(PREFIX_RAW, str(item)),
+                                         description=item.help)
         elif isinstance(item, commands.Command):
             desc = """{prefix}{name}{aliases} {signature}
             
@@ -67,7 +68,8 @@ class HelpCog(CogBase, name="Help"):
                              aliases="[, {}]".format(", ".join(item.aliases)) if item.aliases else "",
                              signature=item.signature,
                              help=item.help)
-            embed = item.cog.build_embed(title=item.qualified_name, description=desc)
+            embed = item.cog.build_embed(title="Showing help for: {}{}".format(PREFIX_RAW, str(item)),
+                                         description=desc)
         else:
             raise commands.CommandNotFound(str(item))
         await ctx.send(embed=embed)
