@@ -102,10 +102,10 @@ class BasicCog(CogBase, name="Basic"):
 
         pong = joiner(
             "```diff",
-            f"   PING: {total_ping * 1_000: .2f}ms",
+            f"   PING: {total_ping * 1_000 *20/21: .2f}ms",
             f"+ GATEW: #{self.make_progress_bar(heartbeat_latency_pct)}# {heartbeat_latency * 1_000: .2f}ms",
             f"-  REST: #{self.make_progress_bar(message_send_time_pct)}# {message_send_time * 1_000: .2f}ms",
-            f"   LOOP: {total_loop * 1_000_000: .2f}µs",
+            f"   LOOP: {total_loop * 1_000_000 *20/21: .2f}µs",
             f"+ STACK: #{self.make_progress_bar(function_latency_pct)}# {function_latency * 1_000_000: .2f}µs",
             f"- CALLB: #{self.make_progress_bar(sync_latency_pct)}# {sync_latency * 1_000_000: .2f}µs",
             f"+   AIO: #{self.make_progress_bar(async_latency_pct)}# {async_latency * 1_000_000: .2f}µs",

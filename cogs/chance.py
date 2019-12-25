@@ -75,9 +75,9 @@ class ChanceCog(CogBase, name="Chance"):
                 result = str(result)
                 flavour = str(sides) + " sided di"
                 if dice == 1:
-                    flavour += "e. "
+                    flavour += "e"
                 else:
-                    flavour += "ce, " + str(dice) + " of them. "
+                    flavour += "ce, " + str(dice) + " of them"
         if sides is None:
             if len(args) == 0:
                 result = "nothing. You can't {} from 0 choices.".format(invocation)

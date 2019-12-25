@@ -96,45 +96,6 @@ async def on_raw_reaction_add(payload):
             if cn >= PIN_REACTIONS_MIN or user.permissions_in(channel).manage_messages:
                 await msg.pin()
                 break
-        
 
-ERROR_COLOR = 0xec6761
-
-
-@bot.listen()
-async def on_command_error(ctx, error):
-    error = error.__cause__ or error
-    if isinstance(error, CommandNotFound):
-        e = discord.Embed(title="I didn't quite catch that.",
-                          description="Maybe look at my help menu if you're stuck?", colour=ERROR_COLOR)
-        e.set_footer(text='{}help'.format(PREFIX_RAW))
-        await ctx.send(embed=e)
-    elif isinstance(error, MissingPermissions):
-        e = discord.Embed(title='Wait. That\'s illegal.',
-                          description='You don\'t have the right permissions for that, buddy.', colour=ERROR_COLOR)
-        e.set_footer(text=str(error))
-        await ctx.send(embed=e)
-    elif isinstance(error, BadArgument):
-        if ctx.message.content[:8 + PREFIX_LEN].lower() == "{}role add".format(PREFIX_RAW):
-            await ctx.send(embed=discord.Embed(title="Role or user doesn't exist.",
-                           description="You'll have to create a new role yourself, " +
-                           "using {}role create, or check for mistakes.".format(PREFIX_RAW),
-                                               colour=ERROR_COLOR))
-    elif isinstance(error, asyncio.TimeoutError):
-        await ctx.send(embed=discord.Embed(title="Timed out.",
-                                           description="I waited for a while but it seems the time is up.",
-                                           colour=ERROR_COLOR))
-    elif isinstance(error, CommandOnCooldown):
-        e = discord.Embed(title='I have a cool-down, you know!', description='That command has a cool-down.',
-                          colour=ERROR_COLOR)
-        e.set_footer(text=str(error))
-        await ctx.send(embed=e)
-    else:
-        e = discord.Embed(title="Beep boop.",
-                          description="That threw an error I didn't quite catch. Don't worry, I'm fine though.",
-                          colour=ERROR_COLOR)
-        e.set_footer(text=str(error))
-        await ctx.send(embed=e)
-    raise(error)
 
 bot.run(TOKEN)
