@@ -135,5 +135,6 @@ async def on_command_error(ctx, error):
                           colour=ERROR_COLOR)
         e.set_footer(text=str(error))
         await ctx.send(embed=e)
+    raise(error)
 
 bot.run(TOKEN)

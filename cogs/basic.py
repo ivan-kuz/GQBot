@@ -1,12 +1,18 @@
 import asyncio
 from urllib.parse import quote_plus
 from discord.ext import commands
+from discord import Colour
 from cogs.base import CogBase
 import time
+import numpy as np
 
 PING_CPU_PASSES = 20
 MAX_ALERT = 1.00
 MIN_IDEAL = 0.25
+
+HIGH = np.array((255, 0, 0))
+MID = np.array((255, 165, 0))
+LOW = np.array((0, 255, 0))
 
 
 class BasicCog(CogBase, name="Basic"):
@@ -109,19 +115,21 @@ class BasicCog(CogBase, name="Basic"):
         severity = (total_ping - MIN_IDEAL)/(MAX_ALERT - MIN_IDEAL)
 
         if severity >= 1:
-            severity_col = 0xff0000
+            severity_col = HIGH
         elif severity <= 0:
-            severity_col = 0x00ff00
+            severity_col = LOW
         elif severity > 0.5:
             sv = (severity - 0.5) * 2
-            severity_col = sv * 0xff0000
-            severity_col += (1-sv) * 0xffff00
+            severity_col = sv * HIGH
+            severity_col += (1-sv) * MID
         else:
             sv = severity * 2
-            severity_col = sv * 0xffff00
-            severity_col += (1-sv) * 0x00ff00
+            severity_col = sv * MID
+            severity_col += (1-sv) * LOW
         
-        severity_col = round(severity_col)
+        r, g, b = (int(i) for i in severity_col)
+        
+        severity_col = Colour.from_rgb(r, g, b)
         
         embed = self.build_embed(title=pong_or_ping, description=pong, colour=severity_col)
 
