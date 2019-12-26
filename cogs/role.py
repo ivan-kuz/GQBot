@@ -2,10 +2,10 @@ from discord.ext import commands
 import asyncio
 import discord
 import re
-from utils.botconstants import EMOJI
 from utils import format_doc
 from cogs.base import CogBase
 import itertools as it
+from utils.botconstants import EMOJI
 
 
 class RoleCog(CogBase, name="Roles and Permissions"):
@@ -61,14 +61,15 @@ class RoleCog(CogBase, name="Roles and Permissions"):
         Members with manage_roles permissions can react with the respective emoji to toggle the permission.
         React with ▶ to move to the next page.
         React with ❌ to close the editor."""
-        reactants = EMOJI["DIGITS"] + [EMOJI["ARROWS"]["RIGHT"], EMOJI["CROSS_RED"]]
+        CHECK = f"\N{BALLOT BOX WITH CHECK}\N{VARIATION SELECTOR-16}"
+        reactants = EMOJI["DIGITS"] + [f"\N{BLACK RIGHT-POINTING TRIANGLE}", f"\N{CROSS MARK}"]
         async with ctx.typing():
             async def update_embed():
                 ret = ""
                 p_dict = dict(list(iter(role.permissions)))
                 for i, r in enumerate(registers[reg_index]):
                     ret += reactants[i]+" {} {}\n".format(re.sub("_", " ", r),
-                                                          (EMOJI["TICK"] if p_dict[r] else EMOJI["CROSS_BLUE"]))
+                                                          (f"\N{NEGATIVE SQUARED CROSS MARK}" if p_dict[r] else CHECK))
                 return ret
 
             def c_check(c_reaction, c_user):
@@ -110,12 +111,12 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                 await msg.edit(embed=self.build_embed(title="Finished Editing Role: "+role.name,
                                                       description="Timed out."))
                 return
-            if reaction.emoji == EMOJI["CROSS_RED"]:
+            if reaction.emoji == f"\N{CROSS MARK}":
                 await msg.clear_reactions()
                 await msg.edit(embed=self.build_embed(title="Finished Editing Role: "+role.name,
                                                       description="Closed manually."))
                 return
-            if reaction.emoji == EMOJI["ARROWS"]["RIGHT"]:
+            if reaction.emoji == f"\N{BLACK RIGHT-POINTING TRIANGLE}":
                 reg_index += 1
                 if reg_index >= len(registers)-1:
                     reg_index = 0

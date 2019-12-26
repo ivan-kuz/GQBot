@@ -1,6 +1,6 @@
 from discord.ext import commands
 import random
-from pattern.text.en import conjugate
+from pattern.text.en import conjugate  # Why does this take so long?
 from cogs.base import CogBase
 from utils import sentence_case, list_values, format_doc
 

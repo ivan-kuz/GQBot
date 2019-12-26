@@ -4,26 +4,35 @@ from discord.ext.commands.errors import *
 import asyncio
 import random
 import re
-from utils import regex
+from utils import regex, BarHelper
 from utils.botconstants import *
 import cogs
 
+print("Finished imports!")
+
 bot = commands.Bot(command_prefix=PREFIX)
-suggestion_channels = []
-PIN_REACTIONS_MIN = 3
 
+print("Loading cogs...")
+_bh = BarHelper(cogs.COG_COUNT)
+_bh.print()
 for cog in cogs.COGS:
+    _bh.progress(end=f" {cog.__name__}\n")
     bot.add_cog(cog(bot))
-
+print("Loaded cogs!")
 
 @bot.event
 async def on_ready():
-    print("GQBot is online! Hail the Fathers!")
-    global suggestion_channels
-    suggestion_channels = []
-    for c in bot.get_all_channels():
-        if c.name == "suggestions":
-            suggestion_channels.append(c)
+    print("...GQBot is online!\nHail the Fathers!")
+
+
+@bot.event
+async def on_connect():
+    print("Connected...")
+
+
+@bot.event
+async def on_disconnect():
+    print("Lost connection.")
 
 
 @bot.event
@@ -31,16 +40,13 @@ async def on_message(message):
     if message.author.bot and message.author.id != MEE6_ID:  # Return if the author is a bot, unless it is MEE6.
         return
     message_content = message.content.lower()
-    if EMOJI["EYE_ROLL"] in message_content:
+    if f"\N{FACE WITH ROLLING EYES}" in message_content:
         reply = "> {}\n".format(message.content)
-        reply += re.sub(EMOJI["EYE_ROLL"], EMOJI["SUNGLASSES"], message_content)
+        reply += re.sub(f"\N{FACE WITH ROLLING EYES}", f"\N{SMILING FACE WITH SUNGLASSES}", message_content)
         await message.channel.send(reply)
-        await message.add_reaction(EMOJI["SUNGLASSES"])
-    if message.channel in suggestion_channels:
-        await message.add_reaction(EMOJI["THUMBS_UP"])
-        await message.add_reaction(EMOJI["THUMBS_DOWN"])
+        await message.add_reaction(f"\N{SMILING FACE WITH SUNGLASSES}")
     if regex.MEE6.search(message.content):
-        await message.add_reaction(EMOJI["MIDDLE_FINGER"])
+        await message.add_reaction(f"\N{REVERSED HAND WITH MIDDLE FINGER EXTENDED}")
         await message.channel.send("Shut up, bot.")
     if message_content == "calm":
         await message.channel.send("Do you know what else is calm?! The GQBot!")
@@ -76,26 +82,6 @@ async def gen_greeting(name):
                                "Type {}help to see my commands.".format(PREFIX_RAW),
                                "What's up?"))
     return greeting.format(name)
-
-
-@bot.event
-async def on_raw_reaction_add(payload):
-    if str(payload.emoji) == EMOJI["PIN"]:
-        msg_id = payload.message_id
-        channel_id = payload.channel_id
-        channel = bot.get_channel(channel_id)
-        if channel is None:
-            return
-        msg = await channel.fetch_message(msg_id)
-        if msg.pinned:
-            return
-        reaction = list(filter(lambda x: str(x.emoji) == EMOJI["PIN"], msg.reactions))[0]
-        cn = 0
-        async for user in reaction.users():
-            cn += 1
-            if cn >= PIN_REACTIONS_MIN or user.permissions_in(channel).manage_messages:
-                await msg.pin()
-                break
 
 
 bot.run(TOKEN)

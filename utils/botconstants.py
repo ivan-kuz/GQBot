@@ -23,5 +23,8 @@ except KeyError:
     raise KeyError("Your config.json file is filled in incorrectly." +
                    "Please fill it in as shown in utils/botconstants.py")
 
+VOTING_CHANNELS = set((614242269758881816, 609818815634735104,
+                       605524587597529089, 607225987838509068))
+PIN_REACTIONS_MIN = 3
 MEE6_ID = 159985870458322944
 EMOJI = json.load(open("config/emoji.json", "r"))

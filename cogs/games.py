@@ -65,7 +65,7 @@ class GamesCog(CogBase, name="Games"):
         """Play snake.
 
         Communist edition."""
-        reactants = EMOJI["ARROWS"]["ARRAY"]
+        reactants = EMOJI["ARROWS"]
         snake_game = self.Snake()
 
         if magic == "communist":

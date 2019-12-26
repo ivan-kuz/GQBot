@@ -1,7 +1,7 @@
 import asyncio
 from urllib.parse import quote_plus
 from discord.ext import commands
-from discord import Colour
+from discord import Colour, Embed
 from cogs.base import CogBase
 import time
 import numpy as np
@@ -13,6 +13,23 @@ MIN_IDEAL = 0.25
 HIGH = np.array((255, 0, 0))
 MID = np.array((255, 165, 0))
 LOW = np.array((0, 255, 0))
+            
+def link_command(link: str, *, name: str = None, **d_kwargs):
+    def decorator(funct, name):
+        async def send_link(self, ctx):  # Cog loaded commands need a self parameter or smth.
+            nonlocal _e_dict
+            if _e_dict is None:
+                _e_dict = BasicCog(None).build_embed(url=link, thumbnail=link, title=link).to_dict()
+            embed = _e_dict
+            await funct(self, ctx, embed)
+        _e_dict = None
+        send_link.__doc__ = funct.__doc__
+        if name is None:
+            name = funct.__name__
+        send_link = commands.command(name=name, **d_kwargs)(send_link)
+        return send_link
+    return lambda x: decorator(x, name)
+
 
 
 class BasicCog(CogBase, name="Basic"):
@@ -157,48 +174,48 @@ class BasicCog(CogBase, name="Basic"):
             await self._send_simple(ctx, "@everyone bow down to the GQEmpire")
             await asyncio.sleep(2)
 
-    @commands.command()
-    async def romatime(self, ctx):
+    @link_command("http://romatime.gq")
+    async def romatime(self, ctx, embed):
         """Link to romatime.gq"""
-        await self._send_simple(ctx, "http://romatime.gq")
-        await self._send_simple(ctx, "The most recent episode is: " + "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
+        embed = Embed(**embed, description="The most recent episode is:\n"+
+                                           "https://www.youtube.com/watch?v=pUcxS8Cnyfg")
+        await ctx.send(embed=embed)
 
-    @commands.command()
-    async def aquaesulis(self, ctx):
+    @link_command("http://aquaesulis.gq")
+    async def aquaesulis(self, ctx, embed):
         """Link to aquaesulis.gq"""
-        await self._send_simple(ctx, "http://aquaesulis.gq")
+        await ctx.send(embed=Embed(**embed, description="Learn all about Aquae Sulis!"))
 
-    @commands.command()
-    async def tiffinbbc(self, ctx):
+    @link_command("http://tiffinBBC.gq")
+    async def tiffinbbc(self, ctx, embed):
         """Link to tiffinbbc.gq"""
-        await self._send_simple(ctx, "http://tiffinBBC.gq")
-        await self._send_simple(ctx, "WARNING! Formatting might look really weird on big screens!")
+        embed = Embed(**embed, description="WARNING! Formatting might look really weird on big screens!")
+        await ctx.send(embed=embed)
 
-    @commands.command()
-    async def github(self, ctx):
+    @link_command("https://github.com/ivan-kuz/GQBot/")
+    async def github(self, ctx, embed):
         """Link to GQBot's Github repo."""
-        await self._send_simple(ctx, "https://github.com/ivan-kuz/GQBot/")
-        await self._send_simple(ctx, "This is the github repo for the GQBot." +
-                                     "If you're an avid coder, feel free to contribute to this wonderful bot!")
+        embed = Embed(**embed, description="This is the github repo for the GQBot." + \
+                                  "If you're an avid coder, feel free to " + \
+                                  "contribute to this wonderful bot!")
+        await ctx.send(embed=embed)
 
-    @commands.command()
-    async def wiki(self, ctx):
+    @link_command("https://github.com/ivan-kuz/GQBot/wiki")
+    async def wiki(self, ctx, embed):
         """Link to GQBot's Github wiki."""
-        await self._send_simple(ctx, "https://github.com/ivan-kuz/GQBot/wiki")
-        await self._send_simple(ctx, "This is the link to the wiki for the GQBot." +
-                                     "If you need some help - you will definitely find it on there!")
+        embed = Embed(**embed, description="This is the link to the wiki for the GQBot." + \
+                                  "If you need some help - you will definitely find it on there!")
+        await ctx.send(embed=embed)
 
-    @commands.command()
-    async def quests(self, ctx):
+    @link_command("http://quests.aquaesulis.gq")
+    async def quests(self, ctx, embed):
         """Link to quests.gq"""
-        await self._send_simple(ctx, "Press 'Run' to play your first quest!")
-        await self._send_simple(ctx, "http://quests.aquaesulis.gq")
+        await ctx.send(embed=Embed(**embed, description="Press 'Run' to play your first quest!"))
 
-    @commands.command()
-    async def gqempire(self, ctx):
+    @link_command("http://GQEmpire.gq")
+    async def gqempire(self, ctx, embed):
         """Links to GQEmpire.gq"""
-        await self._send_simple(ctx, "http://GQEmpire.gq")
-        await self._send_simple(ctx, "This is your main site! Feel free to make it your homepage :)")
+        await ctx.send(embed=Embed(**embed, description="This is your main site! Feel free to make it your homepage :)"))
 
     @commands.command()
     async def lmgtfy(self, ctx, *query: str):
@@ -209,9 +226,13 @@ class BasicCog(CogBase, name="Basic"):
             flag = False
             async for msg in ctx.history():
                 if flag:
+                    if not msg.content:
+                        continue
                     query = msg.content
                     break
                 elif msg.id == ctx.message.id:
                     flag = True
 
-        await self._send_simple(ctx, "https://lmgtfy.com/?q={}".format(quote_plus(query)))
+        await self._send_advanced(ctx, title="Let me Google that for you!",
+                                  description=query,
+                                  url="https://lmgtfy.com/?q={}".format(quote_plus(query)))

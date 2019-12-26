@@ -1,8 +1,25 @@
-from .basic import BasicCog
-from .chance import ChanceCog
-from .role import RoleCog
-from .games import GamesCog
-from .help import HelpCog
-from .error_handler import ErrorHandlerCog
+from utils import BarHelper
 
-COGS = [BasicCog, ChanceCog, RoleCog, GamesCog, HelpCog, ErrorHandlerCog]
+COG_COUNT = 7
+_bh = BarHelper(COG_COUNT, one_line=True)
+
+print("Importing cogs...")
+_bh.print()
+from .basic import BasicCog
+_bh.progress()
+from .chance import ChanceCog
+_bh.progress()
+from .role import RoleCog
+_bh.progress()
+from .games import GamesCog
+_bh.progress()
+from .help import HelpCog
+_bh.progress()
+from .error_handler import ErrorHandlerCog
+_bh.progress()
+from .voting import VotingCog
+_bh.progress(end="\n")
+
+COGS = [BasicCog, ChanceCog, RoleCog,
+        GamesCog, HelpCog, ErrorHandlerCog,
+        VotingCog]
