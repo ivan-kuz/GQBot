@@ -9,7 +9,7 @@ def sentence_case(sentence):
 
 
 def list_values(values: List[str]):
-    if len(values) <= 2:
+    if len(values) < 2:
         return "".join(values)
     else:
         return ", ".join(values[:-1]) + " and " + values[-1]
