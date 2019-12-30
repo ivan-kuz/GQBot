@@ -18,7 +18,6 @@ class RoleCog(CogBase, name="Roles and Permissions"):
         """Role managing commands.
 
         Must have manage_roles permission to use."""
-        pass
 
     @role_group.command(name="add")
     @commands.has_permissions(manage_roles=True)

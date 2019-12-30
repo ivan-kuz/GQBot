@@ -48,7 +48,7 @@ class GamesCog(CogBase, name="Games"):
         @property
         def render_string(self):
             render_string = ""
-            for i in range(self.bSize + 2):
+            for _ in range(self.bSize + 2):
                 render_string += "$ "
             render_string += "\n"
             for y in range(self.bSize):
@@ -56,7 +56,7 @@ class GamesCog(CogBase, name="Games"):
                 for x in range(self.bSize):
                     render_string += "@ " if self.apple == (x, y) else ("# " if (x, y) in self.snake else "  ")
                 render_string += "$\n"
-            for i in range(self.bSize + 2):
+            for _ in range(self.bSize + 2):
                 render_string += "$ "
             return render_string
 
