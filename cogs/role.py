@@ -60,7 +60,7 @@ class RoleCog(CogBase, name="Roles and Permissions"):
         Members with manage_roles permissions can react with the respective emoji to toggle the permission.
         React with ▶ to move to the next page.
         React with ❌ to close the editor."""
-        CHECK = f"\N{BALLOT BOX WITH CHECK}\N{VARIATION SELECTOR-16}"
+        check = f"\N{BALLOT BOX WITH CHECK}\N{VARIATION SELECTOR-16}"
         reactants = EMOJI["DIGITS"] + [f"\N{BLACK RIGHT-POINTING TRIANGLE}", f"\N{CROSS MARK}"]
         async with ctx.typing():
             async def update_embed():
@@ -68,7 +68,7 @@ class RoleCog(CogBase, name="Roles and Permissions"):
                 p_dict = dict(list(iter(role.permissions)))
                 for i, r in enumerate(registers[reg_index]):
                     ret += reactants[i]+" {} {}\n".format(re.sub("_", " ", r),
-                                                          (f"\N{NEGATIVE SQUARED CROSS MARK}" if p_dict[r] else CHECK))
+                                                          (f"\N{NEGATIVE SQUARED CROSS MARK}" if p_dict[r] else check))
                 return ret
 
             def c_check(c_reaction, c_user):
@@ -79,8 +79,7 @@ class RoleCog(CogBase, name="Roles and Permissions"):
             def build_embed(desc):
                 em = self.build_embed(title="Editing role: " + role.name,
                                       description=desc, colour=role.colour,
-                                      footer={"text": "Role Editor | Page {} of {}"\
-                                      .format(reg_index+1, len(registers)-1)})
+                                      footer={"text": f"Role Editor | Page {reg_index+1} of {len(registers)-1}"})
                 return em
 
             registers = []

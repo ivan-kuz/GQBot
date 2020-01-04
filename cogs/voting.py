@@ -1,9 +1,15 @@
 import inspect
 import asyncio
 import discord
+from discord.ext.commands import Greedy
+from discord.colour import Colour
+
 from cogs.base import CogBase
+from utils import format_doc, react_for
 from utils.filters import *
-from utils.botconstants import VOTING_CHANNELS, PIN_REACTIONS_MIN, POLL_BUFF, POLL_CHAN
+from discord.ext import commands
+from utils.botconstants import VOTING_CHANNELS, PIN_REACTIONS_MIN, EMOJI
+from itertools import cycle
 
 
 def react_handler(filt, watch):
@@ -16,20 +22,35 @@ def react_handler(filt, watch):
 
 def is_handler(obj):
     try:
-        obj.__react_handler_for__
+        _ = obj.__react_handler_for__
         return True
     except AttributeError:
         return False
 
 
+def fill_between(start, end, char="\N{FULL BLOCK}", blank=" ", length=20):
+    assert end >= start
+    blank_start = round(start*length)
+    center = round((end - start) * 20)
+    blank_end = 20 - (blank_start + center)
+    built = r"*|"
+    built += blank*blank_start
+    built += char*center
+    built += blank*blank_end
+    built += r"|*"
+    return built
+
+
+ANTI_RAINBOW = (Colour.red(), Colour.green(), Colour.blue(),
+                Colour.from_rgb(255, 255, 0), Colour.from_rgb(255, 0, 255), Colour.from_rgb(0, 255, 255))
+
+
 class VotingCog(CogBase, name="Voting"):
-    """Role and permission managing commands."""
+    """Voting and polls."""
 
     COLOUR = 0x008888
     
-    hidden = True
-    
-    def __init__(self, bot: discord.ext.commands.Bot):
+    def __init__(self, bot: commands.Bot):
         super().__init__(bot)
         
         self.handlers = {"CHANGE": [],
@@ -38,25 +59,6 @@ class VotingCog(CogBase, name="Voting"):
         for _, handler in inspect.getmembers(self, is_handler):
             filt, add_to = handler.__react_handler_for__
             self.handlers[add_to].append((handler, filt))
-        
-        self.poll_chan = None
-        self.poll_msg_id = POLL_BUFF
-        self.polls = None
-        self.dirty = True
-    
-    async def get_polls(self):
-        if not self.dirty:
-            return
-        if self.poll_msg_id is None:
-            msg = await self.poll_chan.send("ACTIVE POLLS")
-            self.poll_msg_id = msg.id
-            with open("config/poll_msg.id", "w") as fl:
-                fl.write(str(self.poll_msg_id))
-        else:
-            msg = await self.poll_chan.fetch_message(self.poll_msg_id)
-        
-        pols = msg.content.split("\n")[1:]
-        self.polls = [tuple(x.split()) for x in pols]
     
     @staticmethod
     async def set_vote(message):
@@ -67,16 +69,12 @@ class VotingCog(CogBase, name="Voting"):
     @CogBase.listener()
     async def on_ready(self):
         """Set votes for messages sent when bot was offline."""
-        self.poll_chan = self.bot.get_channel(POLL_CHAN)
-        
         for c_id in VOTING_CHANNELS:
             channel = self.bot.get_channel(c_id)
             async for msg in channel.history():
                 if any(map(lambda x: x.me, msg.reactions)):
                     break
                 await self.set_vote(msg)
-        
-        await self.get_polls()
     
     @CogBase.listener()
     async def on_message(self, message):
@@ -94,7 +92,7 @@ class VotingCog(CogBase, name="Voting"):
         await self.handle_event(event_type="REACTION_REMOVE",
                                 **(await self.unpack_payload(payload)))
     
-    @react_handler((f"\N{PUSHPIN}",), "CHANGE")
+    @react_handler(FilterFor(f"\N{PUSHPIN}"), "CHANGE")
     async def pin_handler(self, reactions, *, message, channel, event_type, **_):
         if event_type == "REACTION_ADD" and not message.pinned:
             reaction = reactions[0]
@@ -104,7 +102,7 @@ class VotingCog(CogBase, name="Voting"):
                 await message.pin()
             async for msg in channel.history():
                 if msg.type == discord.MessageType.pins_add:
-                    await msg.delete()
+                    await msg.delete(delay=2)
                     break
     
         elif event_type == "REACTION_REMOVE" and message.pinned:
@@ -117,19 +115,62 @@ class VotingCog(CogBase, name="Voting"):
                any(map(lambda x: x.permissions_in(channel).manage_messages, users)):
                 await message.unpin()
     
-    @react_handler(OmniCont(), "CHANGE")
-    async def poll_handler(self, reactions, *, message, emoji, **kwargs):
-        reactions = list(filter(lambda x: x.me, reactions))
-        print("hi")
+    @react_handler(ContentFilter(foot="^ACTIVE POLL"), "CHANGE")
+    async def poll_handler(self, reactions, *, message: discord.Message, emoji,
+                           user, event_type, guild: discord.Guild, **_):
+
+        def count_react(rct):
+            return rct.count-1
+
+        emb = message.embeds[0]
+        author = re.match("^ACTIVE POLL by (.*) for", emb.footer.text).group(1)
+        if event_type == "REACTION_ADD" and str(emoji) == f"\N{CROSS MARK}" and str(user) == author:
+            await message.delete()
+            return
+        reactions = list(filter((lambda x: str(x.emoji) in EMOJI["DIGITS"]), reactions))
+        total = max(1, sum(map(count_react, reactions)))
+        new_emb = self.build_embed(title=emb.title, description=emb.description, footer={"text": emb.footer.text})
+        end = 0
+        for react, field in zip(reactions, emb.fields):
+            nd = end + count_react(react)/total
+            new_emb.add_field(name=field.name, inline=False, value=f"```{fill_between(end, nd)}```")
+            end = nd
+        await message.edit(embed=new_emb)
     
-    async def handle_event(self, *, message, event_type, emoji, **kwargs):
+    async def handle_event(self, *, message, event_type, emoji, user: discord.User, **kwargs):
         reactions = message.reactions
-        for filt, w_l, handler in self.handlers["CHANGE"] + self.handlers[event_type]:
-            filtered = filt(reactions)
-            if str(emoji) in w_l:
-                await handler(filtered, message=message, event_type=event_type,
-                              emoji=emoji, **kwargs)
-    
+        if user.id == self.bot.user.id:
+            return
+        for handler, filt in self.handlers["CHANGE"] + self.handlers[event_type]:
+            assert isinstance(filt, Filter)
+            if filt.check_msg(message, emoji):
+                await handler(filt.filter(reactions), message=message, event_type=event_type,
+                              emoji=emoji, user=user, **kwargs)
+
+    @commands.command(name="poll")
+    @format_doc
+    async def make_poll(self, ctx: commands.Context,
+                        option_count: int, colours: Greedy[Colour] = ANTI_RAINBOW,
+                        roles: Greedy[discord.Role] = (), *args):
+        """Make a poll for people to vote on. At most 10 different options.
+
+        {0}poll 3 red  @​everyone Favourite letter?
+          -> new red poll, "Favourite letter?" with options "a", "b" and "c".
+        {0}poll 2 up down @​everyone Best direction?
+          -> new poll, "Best direction?" with options "up" and "down"."""
+        if not 10 >= len(args) >= option_count > 0:
+            raise commands.BadArgument("Incorrect number of options!")
+        options = args[:option_count]
+        title = " ".join(args[option_count:])
+        embed = self.build_embed(title=title, footer={"text": f"ACTIVE POLL by {ctx.author} for roles:"
+                                                              f"{', '.join((str(r.id) for r in roles))}"})
+        for option, col, emo in zip(options, cycle(colours), EMOJI["DIGITS"][:len(args)]):
+            assert isinstance(col, discord.Color)
+            embed.add_field(name=f"{emo}. {option} (Colour: {str(col)})",
+                            value=f"```{fill_between(0, 0)}```", inline=False)
+        msg = await ctx.send(embed=embed)
+        await react_for(msg, f"\N{CROSS MARK}", *EMOJI["DIGITS"][:len(args)])
+
     async def unpack_payload(self, payload):
         message_id = payload.message_id
         user_id = payload.user_id

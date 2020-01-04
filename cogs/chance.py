@@ -84,7 +84,7 @@ class ChanceCog(CogBase, name="Chance"):
             else:
                 result = '"'+random.choice(args)+'"'
             if len(args) > 3 or len(args) < 1:
-                flavour = "between "+str(len(args))+" choices. "
+                flavour = "between "+str(len(args))+" choices"
             else:
                 flavour = "between " + list_values(['"{}"'.format(x) for x in args])
         while True:
