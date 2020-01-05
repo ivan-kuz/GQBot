@@ -29,7 +29,7 @@ def is_handler(obj):
         return False
 
 
-def fill_between(start, end, char="\N{FULL BLOCK}", blank=" ", length=20):
+def fill_between(start, end, char="\N{FULL BLOCK}", blank=".", length=20):
     assert end >= start
     blank_start = round(start*length)
     center = round((end - start) * 20)
