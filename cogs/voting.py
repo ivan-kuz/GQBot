@@ -10,6 +10,7 @@ from utils.filters import *
 from discord.ext import commands
 from utils.botconstants import VOTING_CHANNELS, PIN_REACTIONS_MIN, EMOJI
 from itertools import cycle
+import numpy as np
 
 
 def react_handler(filt, watch):
@@ -41,8 +42,8 @@ def fill_between(start, end, char="\N{FULL BLOCK}", blank=" ", length=20):
     return built
 
 
-ANTI_RAINBOW = (Colour.red(), Colour.green(), Colour.blue(),
-                Colour.from_rgb(255, 255, 0), Colour.from_rgb(255, 0, 255), Colour.from_rgb(0, 255, 255))
+ANTI_RAINBOW = (Colour(0xff0000), Colour(0x00ff00), Colour(0x0000ff),
+                Colour(0xffff00), Colour(0xff00ff), Colour(0x00ffff))
 
 
 class VotingCog(CogBase, name="Voting"):
@@ -118,23 +119,51 @@ class VotingCog(CogBase, name="Voting"):
     @react_handler(ContentFilter(foot="^ACTIVE POLL"), "CHANGE")
     async def poll_handler(self, reactions, *, message: discord.Message, emoji,
                            user, event_type, guild: discord.Guild, **_):
-
-        def count_react(rct):
-            return rct.count-1
+        
+        counted = {self.bot.user}
+        
+        async def count_react(rct):
+            cnt = 0
+            async for memb in rct.users():
+                if memb not in counted and has_roles(memb):
+                    cnt += 1
+                    counted.add(memb)
+            return cnt
+        
+        def has_roles(memb):
+            return bool(rls.intersection(set(memb.roles))) if rls else True
 
         emb = message.embeds[0]
-        author = re.match("^ACTIVE POLL by (.*) for", emb.footer.text).group(1)
+        author = re.match("^ACTIVE POLL by (.*)", emb.footer.text).group(1)
         if event_type == "REACTION_ADD" and str(emoji) == f"\N{CROSS MARK}" and str(user) == author:
             await message.delete()
             return
+            
+        roles_str = re.match(r"^For (.*)", emb.description).group(1).split(", ")
+        if roles_str[0] == "@everyone":
+            rls = None
+        else:
+            rls = set()
+            for name_pair in roles_str:
+                r_id = int(re.match(r"^.*\((\d*)\)$", name_pair).group(1))
+                rls.add(guild.get_role(r_id))
+        
         reactions = list(filter((lambda x: str(x.emoji) in EMOJI["DIGITS"]), reactions))
-        total = max(1, sum(map(count_react, reactions)))
+        r_counts = [await count_react(react) for react in reactions]
+        total = max(1, sum(r_counts))
         new_emb = self.build_embed(title=emb.title, description=emb.description, footer={"text": emb.footer.text})
         end = 0
-        for react, field in zip(reactions, emb.fields):
-            nd = end + count_react(react)/total
+        pctg = []
+        for field, r_count in zip(emb.fields, r_counts):
+            d = r_count/total
+            cl = re.search(r"\(Colour: \#([0-9a-fA-F]+)\)$", field.name).group(1)
+            col = np.array(Colour(int(cl, 16)).to_rgb())
+            pctg.append(d*col)
+            nd = end + d
             new_emb.add_field(name=field.name, inline=False, value=f"```{fill_between(end, nd)}```")
             end = nd
+        new_emb.colour = Colour.from_rgb(*(int(x) for x in sum(pctg)))
+        
         await message.edit(embed=new_emb)
     
     async def handle_event(self, *, message, event_type, emoji, user: discord.User, **kwargs):
@@ -151,25 +180,30 @@ class VotingCog(CogBase, name="Voting"):
     @format_doc
     async def make_poll(self, ctx: commands.Context,
                         option_count: int, colours: Greedy[Colour] = ANTI_RAINBOW,
-                        roles: Greedy[discord.Role] = (), *args):
+                        roles: Greedy[discord.Role] = None, *args):
         """Make a poll for people to vote on. At most 10 different options.
 
         {0}poll 3 red  @​everyone Favourite letter?
           -> new red poll, "Favourite letter?" with options "a", "b" and "c".
         {0}poll 2 up down @​everyone Best direction?
           -> new poll, "Best direction?" with options "up" and "down"."""
-        if not 10 >= len(args) >= option_count > 0:
+        
+        if roles is None:
+            roles_str = "@everyone"
+        else:
+            roles_str = ", ".join((f"{rl.name} ({rl.id})" for rl in roles))
+        if not (10 >= option_count and len(args) >= option_count > 0):
             raise commands.BadArgument("Incorrect number of options!")
         options = args[:option_count]
         title = " ".join(args[option_count:])
-        embed = self.build_embed(title=title, footer={"text": f"ACTIVE POLL by {ctx.author} for roles:"
-                                                              f"{', '.join((str(r.id) for r in roles))}"})
+        embed = self.build_embed(title=title, description=f"For {roles_str}",
+                                 footer={"text": f"ACTIVE POLL by {ctx.author}"})
         for option, col, emo in zip(options, cycle(colours), EMOJI["DIGITS"][:len(args)]):
             assert isinstance(col, discord.Color)
             embed.add_field(name=f"{emo}. {option} (Colour: {str(col)})",
                             value=f"```{fill_between(0, 0)}```", inline=False)
         msg = await ctx.send(embed=embed)
-        await react_for(msg, f"\N{CROSS MARK}", *EMOJI["DIGITS"][:len(args)])
+        await react_for(msg, f"\N{CROSS MARK}", *EMOJI["DIGITS"][:option_count])
 
     async def unpack_payload(self, payload):
         message_id = payload.message_id
