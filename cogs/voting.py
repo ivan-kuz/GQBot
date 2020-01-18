@@ -64,8 +64,11 @@ class VotingCog(CogBase, name="Voting"):
     @staticmethod
     async def set_vote(message):
         if not message.author.bot:
-            await message.add_reaction(f"\N{THUMBS UP SIGN}")
-            await message.add_reaction(f"\N{THUMBS DOWN SIGN}")
+            try:
+                await message.add_reaction(f"\N{THUMBS UP SIGN}")
+                await message.add_reaction(f"\N{THUMBS DOWN SIGN}")
+            except discord.Forbidden:  # If you block the bot your message gets deleted.
+                await message.delete()
     
     @CogBase.listener()
     async def on_ready(self):
@@ -92,6 +95,17 @@ class VotingCog(CogBase, name="Voting"):
     async def on_raw_reaction_remove(self, payload):
         await self.handle_event(event_type="REACTION_REMOVE",
                                 **(await self.unpack_payload(payload)))
+    
+    @react_handler(FilterFor(f"\N{CLOCKWISE RIGHTWARDS AND LEFTWARDS OPEN CIRCLE ARROWS}"),
+                   "REACTION_ADD")
+    async def reinv(self, _, *, message, user, channel, **__):
+        if message.author == user:
+            await self._send_simple(channel, f'"{message.content}"', "Reinvoking:")
+            await self.bot.process_commands(message)
+        else:
+            await self._send_simple(channel, "You can only repeat your own messages.",
+                                    "You can't do that.")
+    
     
     @react_handler(FilterFor(f"\N{PUSHPIN}"), "CHANGE")
     async def pin_handler(self, reactions, *, message, channel, event_type, **_):
