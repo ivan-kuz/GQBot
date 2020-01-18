@@ -1,0 +1,5 @@
+
+utils/botconstants.py
+__pycache__/
+.idea/
+config/config.json
